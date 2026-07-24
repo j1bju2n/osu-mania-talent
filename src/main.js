@@ -2305,9 +2305,15 @@ function createShareKeyResult(label, result, currentPlay, shortRanks, longRanks)
     finalRank: result.finalRank,
   })
 
-  const longDisplay = roundToTwo(
+  const calculatedLongDisplay = roundToTwo(
     Math.min(rawLongDisplay, shortDisplay + 1.34),
   )
+
+  const longDisplay =
+    result.longDisplayOverride !== undefined &&
+    result.longDisplayOverride !== null
+      ? Number(result.longDisplayOverride)
+      : calculatedLongDisplay
 
   return `<article class="share-key-card"><h4>${label}</h4><div class="share-rank-pair"><span>단놋</span><strong>${getRankLabel(rankToNumber(currentPlay.shortRank), shortRanks)} › ${getUnitDisplayLabel(shortDisplay, shortRanks, shortRanks.length - 1)}</strong></div><div class="share-rank-pair"><span>롱놋</span><strong>${getRankLabel(rankToNumber(currentPlay.longRank), longRanks)} › ${getUnitDisplayLabel(longDisplay, longRanks, longRanks.length - 1)}</strong></div></article>`
 }
@@ -2473,12 +2479,18 @@ function createKeyResultCard(
           finalRank: result.finalRank,
         })
 
-  const longDisplayValue =
+  const calculatedLongDisplayValue =
     rawLongDisplayValue === null || shortDisplayValue === null
       ? rawLongDisplayValue
       : roundToTwo(
           Math.min(rawLongDisplayValue, shortDisplayValue + 1.34),
         )
+
+  const longDisplayValue =
+    result.longDisplayOverride !== undefined &&
+    result.longDisplayOverride !== null
+      ? Number(result.longDisplayOverride)
+      : calculatedLongDisplayValue
 
   return `
     <article class="key-result-card">
@@ -2530,7 +2542,13 @@ function createKeyResultCard(
           ),
         )}
         ${createConstantItem('단놋재능', result.constants.short)}
-        ${createConstantItem('롱놋재능', result.constants.long)}
+        ${createConstantItem(
+          '롱놋재능',
+          result.longTalentDisplayOverride !== undefined &&
+          result.longTalentDisplayOverride !== null
+            ? result.longTalentDisplayOverride
+            : result.constants.long,
+        )}
       </div>
     </article>
   `
@@ -2868,6 +2886,93 @@ function calculateFinalExpectedDisplayValue({
   return roundToTwo(displayValue)
 }
 
+function applyCrossKeyLongNoteDisplayCorrection(keyResults) {
+  if (
+    state.keys !== 'both' ||
+    !keyResults.key4 ||
+    !keyResults.key7
+  ) {
+    return
+  }
+
+  const fourKeyShortDisplay = calculateFinalExpectedDisplayValue({
+    expected: keyResults.key4.shortExpected,
+    currentRank: state.play4k.shortRank,
+    keyType: '4k',
+    noteType: 'short',
+    years: state.play4k.years,
+    noteTalent: keyResults.key4.constants.short,
+    finalRank: keyResults.key4.finalRank,
+  })
+
+  const fourKeyRawLongDisplay = calculateFinalExpectedDisplayValue({
+    expected: keyResults.key4.longExpected,
+    currentRank: state.play4k.longRank,
+    keyType: '4k',
+    noteType: 'long',
+    years: state.play4k.years,
+    noteTalent: keyResults.key4.constants.long,
+    finalRank: keyResults.key4.finalRank,
+  })
+
+  const fourKeyLongDisplay = roundToTwo(
+    Math.min(
+      fourKeyRawLongDisplay,
+      fourKeyShortDisplay + 1.34,
+    ),
+  )
+
+  const sevenKeyShortDisplay = calculateFinalExpectedDisplayValue({
+    expected: keyResults.key7.shortExpected,
+    currentRank: state.play7k.shortRank,
+    keyType: '7k',
+    noteType: 'short',
+    years: state.play7k.years,
+    noteTalent: keyResults.key7.constants.short,
+    finalRank: keyResults.key7.finalRank,
+  })
+
+  const sevenKeyRawLongDisplay = calculateFinalExpectedDisplayValue({
+    expected: keyResults.key7.longExpected,
+    currentRank: state.play7k.longRank,
+    keyType: '7k',
+    noteType: 'long',
+    years: state.play7k.years,
+    noteTalent: keyResults.key7.constants.long,
+    finalRank: keyResults.key7.finalRank,
+  })
+
+  const sevenKeyLongDisplay = roundToTwo(
+    Math.min(
+      sevenKeyRawLongDisplay,
+      sevenKeyShortDisplay + 1.34,
+    ),
+  )
+
+  if (sevenKeyLongDisplay <= fourKeyLongDisplay) {
+    return
+  }
+
+  const transferredLongDisplay = roundToTwo(
+    Math.max(
+      fourKeyLongDisplay,
+      sevenKeyLongDisplay - 1,
+    ),
+  )
+
+  // 기존 절대조건인 '롱놋 <= 예상 단놋 + 1.34'도 유지합니다.
+  keyResults.key4.longDisplayOverride = roundToTwo(
+    Math.min(
+      transferredLongDisplay,
+      fourKeyShortDisplay + 1.34,
+    ),
+  )
+
+  keyResults.key4.longTalentDisplayOverride = roundToTwo(
+    keyResults.key7.constants.long - 5,
+  )
+}
+
 function calculateFinalResult() {
   state.newbie = isNewbieState()
 
@@ -2902,6 +3007,7 @@ function calculateFinalResult() {
   calculateExpectedRanksForTalent(keyResults, pointResult.finalPoint)
   applyLowEnteredRankHighTalentCorrection(keyResults, total, rank)
   applyLongExpectedRankCap(keyResults)
+  applyCrossKeyLongNoteDisplayCorrection(keyResults)
 
   return {
     basicTalent: basicResult.basicTalent,
