@@ -186,7 +186,6 @@ const perks = [
     name: '위생-',
     multiplier: 1.03,
     description: '당신은 현대의학과 과학을 과하게 신뢰하는 것 같네요. 씻지도 않고 청소도 하지 않습니다.',
-    key4Effects: { processing: 1, accuracy: -0.5, short: 0.5, long: -1 },
     conflicts: ['clean'],
   },
   {
@@ -194,21 +193,19 @@ const perks = [
     name: '수집가',
     multiplier: 1.02,
     description: '당신은 타인의 신상이나 사진, 동영상과 채팅 내역, 음성녹음 등을 수집하는 괴취미를 가지고있습니다.',
-    key4Effects: { processing: 0.66, accuracy: 0.2, short: 0.33, long: 0.65 },
+    statEffects: { processing: -2 },
   },
   {
     id: 'twitter',
     name: '트짹이',
     multiplier: 1.03,
     description: '당신은 일론머스크가 이 세상에 태어나지 않았다면 살아갈 수 없었을지도 모르겠네요. 트위터(x)를 자주 접속하고, 게시글을 올리거나, 그랬던 적이 있습니다.',
-    key4Effects: { processing: 0.75, accuracy: 1.04, short: 0.57, long: 0.22 },
   },
   {
     id: 'roblox',
     name: 'Roblox',
     multiplier: 1.25,
     description: "당신은 osu!mania에 천부적인 재능을 가지고 태어났습니다. '로블록스를 플레이함.'",
-    key4Effects: { processing: 1.11, accuracy: -0.6, short: 1.02, long: 0.6 },
   },
   {
     id: 'lol',
@@ -221,8 +218,7 @@ const perks = [
     name: 'VRChat',
     multiplier: 1.18,
     description: '당신은 신인류입니다. 현실의 껍데기를 벗어던지고 새로운 인류로써 나아가려합니다.',
-    key4Effects: { processing: 1.34, accuracy: -0.4, short: 1.12, long: 1.06 },
-    key7Effects: { processing: 0.55, accuracy: 0.2, short: 0.44, long: 1.18},
+    statEffects: { short: 2 },
   },
   {
     id: 'mental',
@@ -314,7 +310,6 @@ const perks = [
     name: '남미새 / 여미새',
     multiplier: 1.1,
     description: '당신은 그저 섹스를 하고 싶을 뿐이에요. 그리고 그게 크게 잘못됐다고 생각하진 않는 것 같네요.',
-    key4Effects: { processing: 0.2, accuracy: -0.1, short: 0.35, long: -1.2 },
     conflicts: ['misogyny'],
   },
   {
@@ -322,7 +317,6 @@ const perks = [
     name: '비문화인',
     multiplier: 1.4,
     description: '당신은 아직 세상을 살아가는 법을 잘 알지 못합니다, 지하철 환승역을 햇갈리고, 혼자 타지역까지 찾아가 본적이 없고, 키오스크를 잘 사용하지 못한다거나, 카카오맵을 제대로 사용할 줄 모릅니다.',
-    key4Effects: { processing: 1.14, accuracy: 2.4, short: 1.35, long: 0.44 },
   },
 
   {
@@ -330,7 +324,6 @@ const perks = [
     name: '카페인중독',
     multiplier: 1.15,
     description: '당신은 커피나 에너지드링크, 또는 카페인알약 등이 없으면 마치 좀비처럼 변해버릴것만 같습니다.',
-    key4Effects: { processing: 0.74, accuracy: 0.55, short: 0.34, long: 0.25 },
   },
   {
     id: 'drugUse',
@@ -338,7 +331,6 @@ const perks = [
     multiplier: 1.25,
     description: '오 이건, 위법행위인데요. 이 사이트는 개인정보를 일절 수집하지 않으니까 일단 넘어가 드리겠습니다. 당신은 기타 불법약물 및 대마, 불법의약품 등을 사용하거나 한 적이 있습니다.',
     conflicts: ['noCriminal'],
-    key4Effects: { processing: 0.92, accuracy: -1.5, short: 0.8, long: -1.9 },
   },
   {
     id: 'criminal',
@@ -346,7 +338,6 @@ const perks = [
     multiplier: 1.32,
     description: '당신은 이 나라의 헌법 및 국가규정을 단 한번이라도 어겨 처벌을 받은적이 있습니다. 무죄 및 교내법률 위반 등 국가법이 아닌경우는 제외.',
     conflicts: ['noCriminal'],
-    key4Effects: { processing: 1.13, accuracy: 1.5, short: 1.8, long: 1.9 },
   },
   {
     id: 'profileIntro',
@@ -355,7 +346,6 @@ const perks = [
     multiplier4k: 1.19,
     multiplier7k: 1.16,
     description: '당신은 디스코드 설명, 오스 설명란에 본인의 성별: she/he/they/17/09 등의 생년월일과 나이, 성별 등을 적어뒀습니다. 인터넷 문화에 적응이 빠른 편이네요, 남들이 보기에 어떨지 모르겠지만.',
-    key4Effects: { processing: 0.95, accuracy: 1.1, short: 1.15, long: 0.34 },
   },
   {
     id: 'racist',
@@ -364,7 +354,6 @@ const perks = [
     multiplier4k: 1.15,
     multiplier7k: 1.14,
     description: '당신은 본인과 피부색, 생김새, 사는곳이 다른 자들을 혐오하거나, 본인이 속한 인종을 저열하다고 판단하고 혐오합니다.',
-    key4Effects: { processing: 0.4, accuracy: 1, short: 0.3, long: -1.4 },
     conflicts: ['egalitarian'],
   },
   {
@@ -372,7 +361,6 @@ const perks = [
     name: '특정국가차별',
     multiplier: 1.14,
     description: '난 *국이 싫어. *본도 싫고. 거기 살고있는 너도 싫단말이야. 이 짱* 쪽** 양* 야.',
-    key4Effects: { processing: 0.3, accuracy: 0.3, short: 0.3, long: -0.5 },
     conflicts: ['egalitarian'],
   },
 
@@ -2564,6 +2552,80 @@ function calculateAllKeyConstants() {
   return result
 }
 
+function getLargeRankGapCatchUpRate(rankGap) {
+  if (rankGap < 3) return 0
+  if (rankGap === 3) return 0.5
+  if (rankGap === 4) return 0.55
+  if (rankGap === 5) return 0.6
+  if (rankGap === 6) return 0.7
+  if (rankGap === 7) return 0.8
+  if (rankGap === 8) return 0.85
+  if (rankGap === 9) return 0.9
+  if (rankGap === 10) return 1
+  return 1.1 + Math.max(0, rankGap - 11) * 0.1
+}
+
+function applyLargeRankGapCatchUp({
+  currentShortRank,
+  currentLongRank,
+  shortExpected,
+  longExpected,
+  shortMaxRank,
+  longMaxRank,
+}) {
+  if (
+    currentShortRank === 'not-playing' ||
+    currentLongRank === 'not-playing'
+  ) {
+    return {
+      shortExpected,
+      longExpected,
+    }
+  }
+
+  const currentShort = rankToNumber(currentShortRank)
+  const currentLong = rankToNumber(currentLongRank)
+  const rankGap = Math.abs(currentShort - currentLong)
+
+  if (rankGap < 3) {
+    return {
+      shortExpected,
+      longExpected,
+    }
+  }
+
+  const catchUpRate = getLargeRankGapCatchUpRate(rankGap)
+
+  if (currentShort < currentLong) {
+    const shortIncrease = shortExpected - currentShort
+
+    if (shortIncrease <= 1.5) {
+      shortExpected = roundToTwo(
+        Math.min(
+          shortMaxRank,
+          currentShort + shortIncrease * (1 + catchUpRate),
+        ),
+      )
+    }
+  } else if (currentLong < currentShort) {
+    const longIncrease = longExpected - currentLong
+
+    if (longIncrease <= 1.5) {
+      longExpected = roundToTwo(
+        Math.min(
+          longMaxRank,
+          currentLong + longIncrease * (1 + catchUpRate),
+        ),
+      )
+    }
+  }
+
+  return {
+    shortExpected,
+    longExpected,
+  }
+}
+
 function calculateExpectedRanksForTalent(keyResults, finalPoint) {
   if (keyResults.key4) {
     keyResults.key4.shortExpected = calculateExpectedRank({
@@ -2617,6 +2679,21 @@ function calculateExpectedRanksForTalent(keyResults, finalPoint) {
         currentLongRank + 1,
       )
     }
+
+    const adjustedFourKeyExpected =
+      applyLargeRankGapCatchUp({
+        currentShortRank: state.play4k.shortRank,
+        currentLongRank: state.play4k.longRank,
+        shortExpected: keyResults.key4.shortExpected,
+        longExpected: keyResults.key4.longExpected,
+        shortMaxRank: 22,
+        longMaxRank: 19,
+      })
+
+    keyResults.key4.shortExpected =
+      adjustedFourKeyExpected.shortExpected
+    keyResults.key4.longExpected =
+      adjustedFourKeyExpected.longExpected
   }
 
   if (keyResults.key7) {
@@ -2645,6 +2722,21 @@ function calculateExpectedRanksForTalent(keyResults, finalPoint) {
       preTraitInitialConstants:
         keyResults.key7.preTraitInitialConstants,
     })
+
+    const adjustedSevenKeyExpected =
+      applyLargeRankGapCatchUp({
+        currentShortRank: state.play7k.shortRank,
+        currentLongRank: state.play7k.longRank,
+        shortExpected: keyResults.key7.shortExpected,
+        longExpected: keyResults.key7.longExpected,
+        shortMaxRank: 15,
+        longMaxRank: 15,
+      })
+
+    keyResults.key7.shortExpected =
+      adjustedSevenKeyExpected.shortExpected
+    keyResults.key7.longExpected =
+      adjustedSevenKeyExpected.longExpected
   }
 }
 
@@ -3744,15 +3836,15 @@ const patterns = [
     name: '알 수 없음',
     signedMultiplier: -1.12,
     description: '당신은 아직 뭐가 무슨 패턴인지조차 구분할 수 없을정도로 경험이 부족합니다.',
-    statEffects: { processing: -4, accuracy: -4, short: -4, long: -4 },
+    statEffects: { processing: -2, accuracy: -2, short: -2, long: -2 },
   },
   {
     id: 'jackMain',
     name: '잭메인',
     signedMultiplier: 1.21,
     description: '당신은 연타만이 세상을 통솔하고 지배할 수 있는 유일한 길이라고 굳게 믿고있습니다. 세션을 플레이할때 주로 코드잭 맵이나 연타 맵 위주의 플레이를 즐깁니다.',
-    key4Effects: { processing: 3.1, accuracy: -2.2, long: -11.3, short: 3.6 },
-    key7Effects: { processing: 5.1, accuracy: -1.1, long: -12.1, short: 3.3 },
+    key4Effects: { processing: 3.1, accuracy: -2.2, long: -7.3, short: 3.6 },
+    key7Effects: { processing: 5.1, accuracy: -1.1, long: -9.1, short: 3.3 },
   },
   {
     id: 'speedMain',
@@ -3783,8 +3875,8 @@ const patterns = [
     name: '떨기메인',
     signedMultiplier: 1.08,
     description: '당신은 연타따위에 더이상 종속되지 않고 osu!mania의 미래로 나아가기 위해 극한의 속도와 컨트롤을 익히는 또다른 방향성에 눈을 떴습니다. vibro는 더이상 기행이 아닌 Skill 입니다.',
-    key4Effects: { processing: 3, accuracy: 0.5, long: -11, short: 4.6 },
-    key7Effects: { processing: 2.5, accuracy: 0.1, long: -18, short: 1.3 },
+    key4Effects: { processing: 3, accuracy: 0.5, long: -9, short: 4.6 },
+    key7Effects: { processing: 2.5, accuracy: 0.1, long: -12, short: 1.3 },
   },
   {
     id: 'accuracyMain',
