@@ -1524,3 +1524,212 @@ select option {
   color: transparent !important;
   text-shadow: 0 0 8px rgba(212, 212, 216, 0.95), 0 0 14px rgba(212, 212, 216, 0.75) !important;
 }
+
+
+/* 첫 업데이트: 다운로드 전용 한 화면 공유 카드 */
+.share-result-card{position:fixed;left:-10000px;top:0;width:720px;min-height:0;height:auto;padding:38px;border:1px solid #2f2f35;border-radius:28px;color:#f4f4f5;background:#0b0b0d;box-sizing:border-box}.share-result-card.is-exporting{left:0;top:0;z-index:-1}.share-result-top{display:grid;grid-template-columns:1fr auto;align-items:center;gap:24px;padding-bottom:28px;border-bottom:1px solid #2f2f35}.share-result-top p{margin:0;color:#71717a;font-size:12px;font-weight:800;letter-spacing:.16em}.share-result-top h3{margin:10px 0 0;font-size:30px}.share-rank-block{min-width:150px;text-align:center}.share-rank-block span,.share-rank-block small{display:block;color:#a1a1aa;font-size:11px}.share-rank-block strong{display:block;margin:4px 0;font-size:70px;line-height:1}.share-summary-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:24px}.share-summary-row>div,.share-key-card,.share-traits{border:1px solid #303038;border-radius:18px;background:#151518}.share-summary-row>div{padding:18px}.share-summary-row span,.share-rank-pair span,.share-traits>span{color:#71717a;font-size:11px}.share-summary-row strong{display:block;margin-top:8px;font-size:22px}.share-key-results{display:grid;gap:14px;margin-top:24px}.share-key-card{padding:20px}.share-key-card h4{margin:0 0 14px;font-size:20px}.share-rank-pair{display:grid;grid-template-columns:60px 1fr;align-items:center;gap:12px;padding:12px 0;border-top:1px solid #29292f}.share-rank-pair strong{font-size:20px}.share-traits{margin-top:24px;padding:18px}.share-traits p{margin:8px 0 0;color:#d4d4d8;font-size:13px;line-height:1.6}.share-result-card.is-capturing,.share-result-card.is-capturing *{box-shadow:none!important;text-shadow:none!important;filter:none!important;backdrop-filter:none!important;background-image:none!important;animation:none!important;transition:none!important}.share-result-card.is-capturing *::before,.share-result-card.is-capturing *::after{display:none!important}.share-result-card.is-capturing .privacy-blur p,.share-result-card.is-capturing .capture-privacy-mask p{color:transparent!important;text-shadow:0 0 7px rgba(212,212,216,.95),0 0 12px rgba(212,212,216,.65)!important}
+
+
+/* 모바일 다운로드 공유 카드는 실제 내용 높이까지만 캡처 */
+.share-result-card {
+  min-height: 0 !important;
+  height: auto !important;
+}
+
+.share-result-card.is-exporting {
+  bottom: auto !important;
+}
+
+
+/* 패턴특성 카테고리 */
+.trait-tabs {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.trait-tab-pattern.is-active {
+  border-color: rgba(192, 132, 252, 0.82);
+  background: rgba(126, 34, 206, 0.18);
+  box-shadow: 0 0 24px rgba(168, 85, 247, 0.16);
+}
+
+.trait-section-pattern .trait-kicker,
+.trait-tab-pattern span {
+  color: #c084fc;
+}
+
+.trait-pattern.is-selected {
+  border-color: #a855f7;
+  background: rgba(126, 34, 206, 0.2);
+  box-shadow: 0 0 22px rgba(168, 85, 247, 0.2);
+}
+
+.selected-trait-pattern {
+  border-color: rgba(168, 85, 247, 0.34) !important;
+}
+
+.required-trait-mark {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 17px;
+  height: 17px;
+  margin-left: 5px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font-size: 11px;
+  line-height: 1;
+  vertical-align: 1px;
+  cursor: help;
+}
+
+.required-trait-tooltip {
+  position: absolute;
+  z-index: 30;
+  left: 50%;
+  bottom: calc(100% + 9px);
+  width: max-content;
+  max-width: 270px;
+  padding: 8px 10px;
+  border: 1px solid #3f3f46;
+  border-radius: 8px;
+  color: #e4e4e7;
+  background: #111113;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.45;
+  text-align: left;
+  white-space: normal;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 4px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.required-trait-mark:hover .required-trait-tooltip,
+.required-trait-mark:focus .required-trait-tooltip {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.trait-card.is-selected-required.trait-perk {
+  box-shadow: 0 0 30px rgba(34, 197, 94, 0.42);
+}
+
+.trait-card.is-selected-required.trait-flaw {
+  box-shadow: 0 0 30px rgba(239, 68, 68, 0.42);
+}
+
+@media (max-width: 700px) {
+  .trait-tabs {
+    grid-template-columns: 1fr;
+  }
+
+  .required-trait-tooltip {
+    left: 0;
+    transform: translate(0, 4px);
+  }
+
+  .required-trait-mark:hover .required-trait-tooltip,
+  .required-trait-mark:focus .required-trait-tooltip {
+    transform: translate(0, 0);
+  }
+}
+
+
+/* 패턴특성 선택 가독성 */
+.trait-card.trait-pattern.is-selected {
+  color: #f5f0ff !important;
+  background: linear-gradient(145deg, #6d4bb8, #8b6bd1) !important;
+  border-color: #c4b5fd !important;
+}
+
+.trait-card.trait-pattern.is-selected .trait-card-top strong,
+.trait-card.trait-pattern.is-selected .trait-card-top > span {
+  color: #ffffff !important;
+}
+
+.trait-card.trait-pattern.is-selected .trait-description {
+  color: #eee8ff !important;
+}
+
+/* 인트로 제작 정보 */
+.hero {
+  position: relative;
+}
+
+.intro-info-button {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  margin: 18px auto 0;
+  border: 1px solid #3f3f46;
+  border-radius: 50%;
+  color: #a1a1aa;
+  background: #18181b;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: help;
+}
+
+.intro-info-tooltip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 10px);
+  z-index: 20;
+  width: min(320px, 78vw);
+  padding: 10px 12px;
+  border: 1px solid #3f3f46;
+  border-radius: 10px;
+  color: #d4d4d8;
+  background: #18181b;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.55;
+  text-align: left;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-50%) translateY(4px);
+  transition: 0.16s ease;
+  pointer-events: none;
+}
+
+.intro-info-button:hover .intro-info-tooltip,
+.intro-info-button:focus-visible .intro-info-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* SS+ */
+.rank-theme.rank-ss-plus .final-rank-card {
+  border-color: #ff4d4f !important;
+  background:
+    radial-gradient(circle at 50% 15%, rgba(255, 55, 55, 0.32), transparent 48%),
+    linear-gradient(145deg, #3b090d, #160508) !important;
+  box-shadow:
+    0 0 28px rgba(255, 45, 48, 0.52),
+    0 0 70px rgba(194, 12, 25, 0.28),
+    inset 0 0 32px rgba(255, 72, 72, 0.12) !important;
+}
+
+.rank-theme.rank-ss-plus .final-rank {
+  color: #fff0f0 !important;
+  text-shadow:
+    0 0 8px #ffffff,
+    0 0 18px #ff5b5e,
+    0 0 38px #ff1f32,
+    0 0 64px #a80016 !important;
+}
+
+.rank-theme.rank-ss-plus .final-rank-label,
+.rank-theme.rank-ss-plus .final-total {
+  color: #ffb4b4 !important;
+}
+
+.result-capture.is-capturing.rank-ss-plus .final-rank-card,
+.share-result-card.is-capturing.rank-ss-plus {
+  background: #3b090d !important;
+  border-color: #ff4d4f !important;
+  box-shadow: none !important;
+}

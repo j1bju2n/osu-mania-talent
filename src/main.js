@@ -26,6 +26,7 @@ const state = {
 
   selectedPerks: [],
   selectedFlaws: [],
+  selectedPatterns: [],
   activeTraitCategory: 'perk',
   transitionTarget: '',
   name: '',
@@ -185,6 +186,7 @@ const perks = [
     name: '위생-',
     multiplier: 1.03,
     description: '당신은 현대의학과 과학을 과하게 신뢰하는 것 같네요. 씻지도 않고 청소도 하지 않습니다.',
+    key4Effects: { processing: 1, accuracy: -0.5, short: 0.5, long: -1 },
     conflicts: ['clean'],
   },
   {
@@ -192,19 +194,21 @@ const perks = [
     name: '수집가',
     multiplier: 1.02,
     description: '당신은 타인의 신상이나 사진, 동영상과 채팅 내역, 음성녹음 등을 수집하는 괴취미를 가지고있습니다.',
-    statEffects: { processing: -2 },
+    key4Effects: { processing: 0.66, accuracy: 0.2, short: 0.33, long: 0.65 },
   },
   {
     id: 'twitter',
     name: '트짹이',
     multiplier: 1.03,
     description: '당신은 일론머스크가 이 세상에 태어나지 않았다면 살아갈 수 없었을지도 모르겠네요. 트위터(x)를 자주 접속하고, 게시글을 올리거나, 그랬던 적이 있습니다.',
+    key4Effects: { processing: 0.75, accuracy: 1.04, short: 0.57, long: 0.22 },
   },
   {
     id: 'roblox',
     name: 'Roblox',
     multiplier: 1.25,
     description: "당신은 osu!mania에 천부적인 재능을 가지고 태어났습니다. '로블록스를 플레이함.'",
+    key4Effects: { processing: 1.11, accuracy: -0.6, short: 1.02, long: 0.6 },
   },
   {
     id: 'lol',
@@ -217,7 +221,8 @@ const perks = [
     name: 'VRChat',
     multiplier: 1.18,
     description: '당신은 신인류입니다. 현실의 껍데기를 벗어던지고 새로운 인류로써 나아가려합니다.',
-    statEffects: { short: 2 },
+    key4Effects: { processing: 1.34, accuracy: -0.4, short: 1.12, long: 1.06 },
+    key7Effects: { processing: 0.55, accuracy: 0.2, short: 0.44, long: 1.18},
   },
   {
     id: 'mental',
@@ -238,7 +243,7 @@ const perks = [
     name: '이상성욕',
     multiplier4k: 1.8,
     multiplier7k: 1.4,
-    description: '"나는 끈적하고 잘 빠진 보잉747기체를 보고 흥분감을 느껴."',
+    description: '"나는 끈적하고 잘 빠진 보잉747기체를 보고 흥분감을 느껴." 나는 무기물, 시체, 물고기, 외계인, 대변 등을 보면 흥분돼.',
     conflicts: ['homosexual', 'bisexual', 'furry'],
   },
   {
@@ -253,12 +258,6 @@ const perks = [
     multiplier4k: 1.1,
     multiplier7k: 1.3,
     description: '당신은 픽셀쪼가리 뒤에 가려진 의문의 인간 한명에게 애정과 관심을 느낍니다.',
-  },
-  {
-    id: 'maple',
-    name: '메이플스토리',
-    multiplier: 1.03,
-    description: '당신은 대한민국의 전통 RPG에서 시간을 버리는 행위에 즐거움을 느낍니다.',
   },
   {
     id: 'rapidTrigger',
@@ -298,7 +297,7 @@ const perks = [
     description: '당신은 꾸준합니다, 플레이 경력동안 몇달이상 쉰 적이 없고 꾸준히 게임을 플레이합니다.',
     key4Effects: { processing: 3, accuracy: 3, short: 3, long: 3 },
     key7Effects: { processing: 5, accuracy: 5, short: 5, long: 5 },
-    conflicts: ['shortGame'],
+    conflicts: ['shortGame', 'retired'],
   },
   {
     id: 'cheeseLong',
@@ -314,14 +313,67 @@ const perks = [
     id: 'oppositeSexChaser',
     name: '남미새 / 여미새',
     multiplier: 1.1,
-    description: '당신은 이성에 더 많은 애정과 갈증을 느끼고 그들을 쫓습니다. 근데 만남이 이루어질지는 아무도 모르죠.',
+    description: '당신은 그저 섹스를 하고 싶을 뿐이에요. 그리고 그게 크게 잘못됐다고 생각하진 않는 것 같네요.',
+    key4Effects: { processing: 0.2, accuracy: -0.1, short: 0.35, long: -1.2 },
     conflicts: ['misogyny'],
   },
   {
     id: 'uncultured',
     name: '비문화인',
-    multiplier: 1.7,
+    multiplier: 1.4,
     description: '당신은 아직 세상을 살아가는 법을 잘 알지 못합니다, 지하철 환승역을 햇갈리고, 혼자 타지역까지 찾아가 본적이 없고, 키오스크를 잘 사용하지 못한다거나, 카카오맵을 제대로 사용할 줄 모릅니다.',
+    key4Effects: { processing: 1.14, accuracy: 2.4, short: 1.35, long: 0.44 },
+  },
+
+  {
+    id: 'caffeineAddict',
+    name: '카페인중독',
+    multiplier: 1.15,
+    description: '당신은 커피나 에너지드링크, 또는 카페인알약 등이 없으면 마치 좀비처럼 변해버릴것만 같습니다.',
+    key4Effects: { processing: 0.74, accuracy: 0.55, short: 0.34, long: 0.25 },
+  },
+  {
+    id: 'drugUse',
+    name: '약물사용',
+    multiplier: 1.25,
+    description: '오 이건, 위법행위인데요. 이 사이트는 개인정보를 일절 수집하지 않으니까 일단 넘어가 드리겠습니다. 당신은 기타 불법약물 및 대마, 불법의약품 등을 사용하거나 한 적이 있습니다.',
+    conflicts: ['noCriminal'],
+    key4Effects: { processing: 0.92, accuracy: -1.5, short: 0.8, long: -1.9 },
+  },
+  {
+    id: 'criminal',
+    name: '범죄자',
+    multiplier: 1.32,
+    description: '당신은 이 나라의 헌법 및 국가규정을 단 한번이라도 어겨 처벌을 받은적이 있습니다. 무죄 및 교내법률 위반 등 국가법이 아닌경우는 제외.',
+    conflicts: ['noCriminal'],
+    key4Effects: { processing: 1.13, accuracy: 1.5, short: 1.8, long: 1.9 },
+  },
+  {
+    id: 'profileIntro',
+    name: '나를소개할게요',
+    multiplier: 1.16,
+    multiplier4k: 1.19,
+    multiplier7k: 1.16,
+    description: '당신은 디스코드 설명, 오스 설명란에 본인의 성별: she/he/they/17/09 등의 생년월일과 나이, 성별 등을 적어뒀습니다. 인터넷 문화에 적응이 빠른 편이네요, 남들이 보기에 어떨지 모르겠지만.',
+    key4Effects: { processing: 0.95, accuracy: 1.1, short: 1.15, long: 0.34 },
+  },
+  {
+    id: 'racist',
+    name: '인종차별주의자',
+    multiplier: 1.14,
+    multiplier4k: 1.15,
+    multiplier7k: 1.14,
+    description: '당신은 본인과 피부색, 생김새, 사는곳이 다른 자들을 혐오하거나, 본인이 속한 인종을 저열하다고 판단하고 혐오합니다.',
+    key4Effects: { processing: 0.4, accuracy: 1, short: 0.3, long: -1.4 },
+    conflicts: ['egalitarian'],
+  },
+  {
+    id: 'nationalDiscrimination',
+    name: '특정국가차별',
+    multiplier: 1.14,
+    description: '난 *국이 싫어. *본도 싫고. 거기 살고있는 너도 싫단말이야. 이 짱* 쪽** 양* 야.',
+    key4Effects: { processing: 0.3, accuracy: 0.3, short: 0.3, long: -0.5 },
+    conflicts: ['egalitarian'],
   },
 
 ]
@@ -490,7 +542,7 @@ const flaws = [
     description: '당신은 이 게임에 별로 진심이 아닌거같네요. 플레이세션이 불규칙적이고 오랫동안 쉬거나 다른게임을 하러 가곤 합니다.',
     key4Effects: { processing: 1, accuracy: 1, short: 1, long: 1 },
     key7Effects: { processing: 2, accuracy: 2, short: 2, long: 2 },
-    conflicts: ['longGame'],
+    conflicts: ['longGame', 'retired'],
   },
   {
     id: 'noCheeseLong',
@@ -521,6 +573,42 @@ const flaws = [
     name: '애정결핍',
     multiplier: 2,
     description: '당신은 성적인 욕망을 제외하고 순수하게 인간에게서 받는 관심과 애정에 미쳐있습니다.',
+  },
+
+  {
+    id: 'maple',
+    name: '메이플스토리',
+    multiplier: 1.03,
+    description: '당신은 대한민국의 전통 RPG에서 시간을 버리는 행위에 즐거움을 느낍니다.',
+  },
+  {
+    id: 'noCriminal',
+    name: '전과없음',
+    multiplier: 1.25,
+    description: '당신은 끔찍히도 성실하고 법에 충실하게 살아왔고, 너무나도 정상적인 인간입니다. 무죄 및 교내법률 위반 등 국가법이 아닌경우는 제외.',
+    conflicts: ['criminal', 'drugUse'],
+  },
+  {
+    id: 'dadJoke',
+    name: '아재개그',
+    multiplier: 2.1,
+    description: '당신은 나이에 어울리는 웃음코드를 갖고있고 아재개그를 즐기지만, 이 게임을 플레이하는 젊은이들에게는 별로 탐탁치않은 것 같네요..',
+    minimumAge: 30,
+  },
+  {
+    id: 'egalitarian',
+    name: '평등주의자',
+    multiplier: 1.7,
+    description: '당신은 모두가 평등하다고 생각하고 지구촌 모든 인류가 동등한 위치에서 태어나 각자의 방식으로 성장한다고 굳게 믿습니다.',
+    conflicts: ['racist', 'nationalDiscrimination'],
+  },
+  {
+    id: 'retired',
+    name: '접음',
+    multiplier: 1.8,
+    description: '당신은 게임을 최소 1년 이상 거의 플레이하지 않거나, 아예 플레이 하지 않았습니다. 이제는 과거의 영광이 되어버렸지만 여전히 이 테스트는 당신을 환영합니다.',
+    statEffects: { processing: -3, accuracy: -3, short: -3, long: -3 },
+    conflicts: ['longGame', 'shortGame'],
   },
 
 ]
@@ -592,6 +680,7 @@ function resetState() {
   state.play7k = { years: '', shortRank: '', longRank: '' }
   state.selectedPerks = []
   state.selectedFlaws = []
+  state.selectedPatterns = []
   state.activeTraitCategory = 'perk'
   state.transitionTarget = ''
   state.name = ''
@@ -603,7 +692,7 @@ function renderHome() {
   app.innerHTML = `
     <main class="page page-center">
       <section class="hero">
-        <p class="eyebrow">RHYTHM GAME TALENT TEST</p>
+        <p class="eyebrow">OSU!MANIA TALENT TEST</p>
 
         <h1>Osu!mania<br />재능상수 측정기</h1>
 
@@ -617,8 +706,17 @@ function renderHome() {
         </button>
 
         <p class="notice">
-          입력한 정보는 저장되거나 수집되지 않습니다.
+          입력한 정보는 저장되거나 수집되지 않습니다.<br />
+          이 측정기는 온전히 재미를 위해 만들어졌습니다.
         </p>
+
+        <button class="intro-info-button" type="button" aria-label="사이트 제작 정보">
+          !
+          <span class="intro-info-tooltip">
+            이 사이트는 ChatGPT를 사용한 바이브코딩으로 만들어졌으며,
+            코딩을 제외한 모든 로직 및 퍽과 계산 알고리즘은 제작자가 손수 작성했습니다.
+          </span>
+        </button>
       </section>
     </main>
   `
@@ -1185,11 +1283,136 @@ function renderBasicTalentResult() {
   setupRestartControl()
 }
 
+
+const requiredTraitGroups = [
+  {
+    ids: ['noCriminal', 'criminal'],
+    label: '[전과없음], [범죄자] 중 하나',
+  },
+  {
+    ids: ['longGame', 'shortGame', 'retired'],
+    label: '[장기전], [단기전], [접음] 중 하나',
+  },
+  {
+    ids: ['clean', 'dirty'],
+    label: '[위생+], [위생-] 중 하나',
+  },
+  {
+    ids: ['heterosexual', 'bisexual', 'homosexual', 'fetish'],
+    label: '[이성애자], [양성애자], [동성애자], [이상성욕] 중 하나',
+  },
+  {
+    ids: ['neverDated', 'notDating', 'dating', 'married'],
+    label: '[모쏠], [비연애중], [연애중], [기혼자] 중 하나',
+  },
+  {
+    ids: ['extrovert', 'introvert'],
+    label: '[외향적], [내향적] 중 하나',
+  },
+]
+
+function getRequiredTraitGroup(id) {
+  return requiredTraitGroups.find((group) => group.ids.includes(id)) || null
+}
+
+function isRequiredGroupCompleted(group) {
+  const selected = [
+    ...state.selectedPerks,
+    ...state.selectedFlaws,
+  ]
+
+  return group.ids.some((id) => selected.includes(id))
+}
+
+function getTraitArray(type) {
+  if (type === 'perk') return perks
+  if (type === 'flaw') return flaws
+  return patterns
+}
+
+function getSelectedTraitList(type) {
+  if (type === 'perk') return state.selectedPerks
+  if (type === 'flaw') return state.selectedFlaws
+  return state.selectedPatterns
+}
+
+function getOrderedTraits(type) {
+  const source = [...getTraitArray(type)]
+
+  if (type === 'pattern') return source
+
+  const requiredIds = requiredTraitGroups.flatMap((group) => group.ids)
+  let required = requiredIds
+    .map((id) => source.find((item) => item.id === id))
+    .filter(Boolean)
+
+  if (type === 'perk') {
+    const criminal = required.find((item) => item.id === 'criminal')
+    required = required.filter((item) => item.id !== 'criminal')
+    if (criminal) required.push(criminal)
+  }
+
+  if (type === 'flaw') {
+    const noCriminal = required.find((item) => item.id === 'noCriminal')
+    required = required.filter((item) => item.id !== 'noCriminal')
+    if (noCriminal) required.push(noCriminal)
+  }
+
+  let remaining = source.filter(
+    (item) => !requiredIds.includes(item.id) && item.id !== 'none',
+  )
+
+  if (type === 'perk') {
+    const cheese = remaining.find((item) => item.id === 'cheeseLong')
+    remaining = remaining.filter((item) => item.id !== 'cheeseLong')
+    const dirtyOriginalIndex = source.findIndex((item) => item.id === 'dirty')
+    const insertionIndex = Math.max(
+      0,
+      Math.min(dirtyOriginalIndex, remaining.length),
+    )
+    if (cheese) remaining.splice(insertionIndex, 0, cheese)
+  }
+
+  if (type === 'flaw') {
+    const healthy = remaining.find((item) => item.id === 'healthy')
+    const goodChild = remaining.find((item) => item.id === 'goodChild')
+    remaining = remaining.filter(
+      (item) => !['healthy', 'goodChild'].includes(item.id),
+    )
+
+    if (healthy) remaining.unshift(healthy)
+    if (goodChild) remaining.splice(healthy ? 1 : 0, 0, goodChild)
+  }
+
+  if (type === 'flaw') {
+    const none = source.find((item) => item.id === 'none')
+    return [none, ...required, ...remaining].filter(Boolean)
+  }
+
+  return [...required, ...remaining]
+}
+
 function renderPerksAndFlaws() {
   const pointResult = calculatePerkPoint()
-  const showingPerks = state.activeTraitCategory === 'perk'
-  const activeItems = showingPerks ? perks : flaws
-  const activeType = showingPerks ? 'perk' : 'flaw'
+  const category = state.activeTraitCategory
+  const activeItems = getOrderedTraits(category)
+  const categoryInfo = {
+    perk: {
+      kicker: 'POSITIVE',
+      title: '리듬재능특성',
+      count: `${state.selectedPerks.length}개 선택`,
+    },
+    flaw: {
+      kicker: 'NEGATIVE',
+      title: '리듬부정특성',
+      count: getFlawSelectionText(),
+    },
+    pattern: {
+      kicker: 'PATTERN',
+      title: '패턴특성',
+      count: `${state.selectedPatterns.length} / 1개 이상`,
+    },
+  }[category]
 
   app.innerHTML = `
     <main class="page">
@@ -1203,8 +1426,8 @@ function renderPerksAndFlaws() {
           <h2>후천적 특성 선택하기</h2>
 
           <p class="header-description">
-            리듬재능특성은 선택하지 않아도 되지만, 리듬부정특성은 최소 5개를 선택해야 합니다.
-            서로 충돌하는 항목은 동시에 선택할 수 없습니다.
+            리듬부정특성은 최소 5개, 패턴특성은 최소 1개를 선택해야 합니다.
+            필수 표시가 붙은 특성군에서는 대응되는 항목 중 하나를 반드시 선택해야 합니다.
           </p>
         </div>
 
@@ -1218,58 +1441,37 @@ function renderPerksAndFlaws() {
             초기 ${formatNumber(pointResult.initialPoint)}
             · Positive ${formatSignedNumber(pointResult.positiveChange)}
             · Negative ${formatSignedNumber(-pointResult.flawChange)}
+            · Pattern ${formatSignedNumber(pointResult.patternChange)}
           </div>
         </div>
 
         <div class="trait-tabs" role="tablist" aria-label="특성 카테고리">
-          <button
-            class="trait-tab ${showingPerks ? 'is-active' : ''}"
-            type="button"
-            data-category="perk"
-          >
-            <span>POSITIVE</span>
-            <strong>리듬재능특성</strong>
-            <small>${state.selectedPerks.length}개 선택</small>
+          <button class="trait-tab trait-tab-perk ${category === 'perk' ? 'is-active' : ''}" type="button" data-category="perk">
+            <span>POSITIVE</span><strong>리듬재능특성</strong><small>${state.selectedPerks.length}개 선택</small>
           </button>
-
-          <button
-            class="trait-tab ${!showingPerks ? 'is-active' : ''}"
-            type="button"
-            data-category="flaw"
-          >
-            <span>NEGATIVE</span>
-            <strong>리듬부정특성</strong>
-            <small>${getFlawSelectionText()}</small>
+          <button class="trait-tab trait-tab-flaw ${category === 'flaw' ? 'is-active' : ''}" type="button" data-category="flaw">
+            <span>NEGATIVE</span><strong>리듬부정특성</strong><small>${getFlawSelectionText()}</small>
+          </button>
+          <button class="trait-tab trait-tab-pattern ${category === 'pattern' ? 'is-active' : ''}" type="button" data-category="pattern">
+            <span>PATTERN</span><strong>패턴특성</strong><small>${state.selectedPatterns.length} / 1개 이상</small>
           </button>
         </div>
 
-        <section class="trait-section">
+        <section class="trait-section trait-section-${category}">
           <div class="trait-heading">
-            <div>
-              <p class="trait-kicker">${showingPerks ? 'POSITIVE' : 'NEGATIVE'}</p>
-              <h3>${showingPerks ? '리듬재능특성' : '리듬부정특성'}</h3>
-            </div>
-            <strong>
-              ${showingPerks ? `${state.selectedPerks.length}개 선택` : getFlawSelectionText()}
-            </strong>
+            <div><p class="trait-kicker">${categoryInfo.kicker}</p><h3>${categoryInfo.title}</h3></div>
+            <strong>${categoryInfo.count}</strong>
           </div>
 
-          ${
-            showingPerks && state.selectedPerks.includes('transition')
-              ? createTransitionTargetSelector()
-              : ''
-          }
+          ${category === 'perk' && state.selectedPerks.includes('transition') ? createTransitionTargetSelector() : ''}
 
           <div class="trait-grid">
-            ${activeItems.map((item) => createTraitCard(item, activeType)).join('')}
+            ${activeItems.map((item) => createTraitCard(item, category)).join('')}
           </div>
         </section>
 
         <p id="errorMessage" class="error-message trait-error"></p>
-
-        <button id="nextButton" class="primary-button full-button" type="button">
-          선택 완료
-        </button>
+        <button id="nextButton" class="primary-button full-button" type="button">선택 완료</button>
       </section>
     </main>
   `
@@ -1298,9 +1500,7 @@ function renderPerksAndFlaws() {
   })
 
   document.querySelector('#nextButton').addEventListener('click', validateTraits)
-
   setupRestartControl()
-
 }
 
 function createTransitionTargetSelector() {
@@ -1350,36 +1550,31 @@ function createTransitionTargetSelector() {
 }
 
 function createTraitCard(item, type) {
-  const selectedList =
-    type === 'perk' ? state.selectedPerks : state.selectedFlaws
-
+  const selectedList = getSelectedTraitList(type)
   const selected = selectedList.includes(item.id)
   const disabledReason = getTraitDisabledReason(item, type)
   const disabled = Boolean(disabledReason)
   const multiplierText = getDisplayedMultiplierText(item, type)
+  const requiredGroup = getRequiredTraitGroup(item.id)
+  const requiredCompleted = requiredGroup && isRequiredGroupCompleted(requiredGroup)
 
   return `
     <button
-      class="trait-card trait-${type} ${selected ? 'is-selected' : ''} ${disabled ? 'is-disabled' : ''}"
+      class="trait-card trait-${type} ${selected ? 'is-selected' : ''} ${selected && requiredGroup ? 'is-selected-required' : ''} ${disabled ? 'is-disabled' : ''}"
       type="button"
       data-trait-type="${type}"
       data-trait-id="${item.id}"
       ${disabled ? 'disabled' : ''}
     >
       <span class="trait-card-top">
-        <strong>${item.name}</strong>
+        <strong>
+          ${item.name}
+          ${requiredGroup ? `<span class="required-trait-mark" tabindex="0">!<span class="required-trait-tooltip">필수특성입니다. ${requiredGroup.label}는 선택해야 함.</span></span>` : ''}
+        </strong>
         <span>${multiplierText}</span>
       </span>
-
-      <span class="trait-description">
-        ${item.description}
-      </span>
-
-      ${
-        disabledReason
-          ? `<span class="trait-disabled-reason">${disabledReason}</span>`
-          : ''
-      }
+      <span class="trait-description">${item.description}</span>
+      ${disabledReason ? `<span class="trait-disabled-reason">${disabledReason}</span>` : ''}
     </button>
   `
 }
@@ -1394,101 +1589,135 @@ function getDisplayedMultiplierText(item, type) {
     return multiplier ? `×${formatCompactMultiplier(multiplier)}` : '방향 선택 필요'
   }
 
+  if (type === 'pattern') {
+    const multiplier = getPatternAppliedMultiplier(item)
+    const sign = multiplier < 0 ? '− ' : '+ '
+    return `${sign}×${formatCompactMultiplier(Math.abs(multiplier))}`
+  }
+
   const multiplier = getAppliedMultiplier(item)
   const sign = type === 'flaw' ? '− ' : '+ '
-
   return `${sign}×${formatCompactMultiplier(multiplier)}`
 }
 
 function formatCompactMultiplier(value) {
-  return Number(value).toFixed(2).replace(/\.?0+$/, '')
+  return Number(value).toFixed(3).replace(/\.?0+$/, '')
 }
 
 function getTransitionMultiplier() {
   if (state.gender === 'male') {
     return state.transitionTarget === 'female' ? 3 : state.transitionTarget === 'other' ? 2 : 0
   }
-
   if (state.gender === 'female') {
     return state.transitionTarget === 'male' ? 1.1 : state.transitionTarget === 'other' ? 2 : 0
   }
-
   return 0
 }
 
 function getAppliedMultiplier(item) {
-  if (item.id === 'transition') {
-    return getTransitionMultiplier()
-  }
+  if (item.id === 'transition') return getTransitionMultiplier()
 
-  if (item.multiplier4k && item.multiplier7k) {
-    if (state.keys === '4k') return item.multiplier4k
-    if (state.keys === '7k') return item.multiplier7k
-    return Math.max(item.multiplier4k, item.multiplier7k)
+  if (item.multiplier4k || item.multiplier7k) {
+    if (state.keys === '4k') return item.multiplier4k ?? item.multiplier ?? 0
+    if (state.keys === '7k') return item.multiplier7k ?? item.multiplier ?? 0
+    return Math.max(
+      item.multiplier4k ?? item.multiplier ?? 0,
+      item.multiplier7k ?? item.multiplier ?? 0,
+    )
   }
-
   return item.multiplier ?? 0
 }
 
-function getTraitDisabledReason(item, type) {
-  const allSelected = [...state.selectedPerks, ...state.selectedFlaws]
-  const currentlySelected =
-    type === 'perk'
-      ? state.selectedPerks.includes(item.id)
-      : state.selectedFlaws.includes(item.id)
+function areSelectedRanksAtOrBelow({ fourShort, fourLong, sevenShort, sevenLong, strict = false }) {
+  const compare = strict ? (value, limit) => value < limit : (value, limit) => value <= limit
+  const checks = []
 
+  if (state.keys === '4k' || state.keys === 'both') {
+    checks.push(
+      compare(rankToNumber(state.play4k.shortRank), fourShort) &&
+      compare(rankToNumber(state.play4k.longRank), fourLong),
+    )
+  }
+
+  if (state.keys === '7k' || state.keys === 'both') {
+    checks.push(
+      compare(rankToNumber(state.play7k.shortRank), sevenShort) &&
+      compare(rankToNumber(state.play7k.longRank), sevenLong),
+    )
+  }
+
+  return checks.length > 0 && checks.every(Boolean)
+}
+
+function getPatternAppliedMultiplier(item) {
+  if (item.id === 'accuracyMain') {
+    const lowRank = areSelectedRanksAtOrBelow({
+      fourShort: 11, fourLong: 11, sevenShort: 8, sevenLong: 8,
+    })
+    return lowRank ? item.lowRankSignedMultiplier : item.signedMultiplier
+  }
+
+  if (item.id === 'hybridMain') {
+    const lowRank = areSelectedRanksAtOrBelow({
+      fourShort: 11, fourLong: 11, sevenShort: 8, sevenLong: 8, strict: true,
+    })
+    return lowRank ? item.lowRankSignedMultiplier : item.signedMultiplier
+  }
+
+  return item.signedMultiplier ?? 0
+}
+
+function getTraitDisabledReason(item, type) {
+  const allSelected = [
+    ...state.selectedPerks,
+    ...state.selectedFlaws,
+    ...state.selectedPatterns,
+  ]
+  const currentlySelected = getSelectedTraitList(type).includes(item.id)
   if (currentlySelected) return ''
 
   if (type === 'flaw' && item.id !== 'none' && state.selectedFlaws.includes('none')) {
     return '해당없음과 함께 선택할 수 없습니다.'
   }
-
   if (type === 'flaw' && item.id === 'none' && state.selectedFlaws.length > 0) {
     return '다른 Flaw와 함께 선택할 수 없습니다.'
   }
-
-  if (item.requiresEmployed && state.job !== 'employed') {
-    return '직장인일 때만 선택할 수 있습니다.'
-  }
-
   if (
-    item.requiresUniversity &&
-    state.school !== 'university' &&
-    state.school !== 'university-dropout'
+    type === 'pattern' &&
+    item.id !== 'patternUnknown' &&
+    state.selectedPatterns.includes('patternUnknown')
   ) {
+    return '알 수 없음과 함께 선택할 수 없습니다.'
+  }
+  if (
+    type === 'pattern' &&
+    item.id === 'patternUnknown' &&
+    state.selectedPatterns.length > 0
+  ) {
+    return '다른 패턴특성과 함께 선택할 수 없습니다.'
+  }
+  if (item.requiresEmployed && state.job !== 'employed') return '직장인일 때만 선택할 수 있습니다.'
+  if (item.minimumAge && Number(state.age) < item.minimumAge) return `${item.minimumAge}세 이상일 때만 선택할 수 있습니다.`
+  if (item.requiresUniversity && state.school !== 'university' && state.school !== 'university-dropout') {
     return '대학교 또는 대학교 자퇴일 때만 선택할 수 있습니다.'
   }
 
   const conflict = (item.conflicts || []).find((id) => allSelected.includes(id))
+  if (conflict) return '이미 선택한 항목과 충돌합니다.'
 
-  if (conflict) {
-    return '이미 선택한 항목과 충돌합니다.'
-  }
-
-  const reverseConflict = [...perks, ...flaws].find(
-    (other) =>
-      allSelected.includes(other.id) &&
-      (other.conflicts || []).includes(item.id),
+  const reverseConflict = [...perks, ...flaws, ...patterns].find(
+    (other) => allSelected.includes(other.id) && (other.conflicts || []).includes(item.id),
   )
-
-  if (reverseConflict) {
-    return '이미 선택한 항목과 충돌합니다.'
-  }
-
+  if (reverseConflict) return '이미 선택한 항목과 충돌합니다.'
   return ''
 }
 
 function toggleTrait(type, id) {
-  const targetList = type === 'perk' ? state.selectedPerks : state.selectedFlaws
+  const targetList = getSelectedTraitList(type)
 
   if (targetList.includes(id)) {
-    const index = targetList.indexOf(id)
-    targetList.splice(index, 1)
-
-    if (id === 'transition') {
-      state.transitionTarget = ''
-    }
-
+    targetList.splice(targetList.indexOf(id), 1)
+    if (id === 'transition') state.transitionTarget = ''
     renderPerksAndFlaws()
     return
   }
@@ -1499,10 +1728,52 @@ function toggleTrait(type, id) {
     state.selectedFlaws = state.selectedFlaws.filter((item) => item !== 'none')
     state.selectedFlaws.push(id)
   } else {
-    state.selectedPerks.push(id)
+    targetList.push(id)
   }
 
   renderPerksAndFlaws()
+}
+
+function calculatePatternPointChange(unit) {
+  const selected = state.selectedPatterns
+    .map((id) => patterns.find((item) => item.id === id))
+    .filter(Boolean)
+
+  const hasJack = state.selectedPatterns.includes('jackMain')
+  const hasSpeed = state.selectedPatterns.includes('speedMain')
+  const selectedCount = selected.length
+
+  let multiplierTotal = 0
+
+  if (hasJack && hasSpeed) {
+    const jack = patterns.find((item) => item.id === 'jackMain')
+    const speed = patterns.find((item) => item.id === 'speedMain')
+
+    multiplierTotal += (
+      getPatternAppliedMultiplier(jack) +
+      getPatternAppliedMultiplier(speed)
+    ) * 0.6
+
+    selected
+      .filter((item) => !['jackMain', 'speedMain'].includes(item.id))
+      .forEach((item) => {
+        multiplierTotal += getPatternAppliedMultiplier(item)
+      })
+  } else {
+    selected.forEach((item) => {
+      multiplierTotal += getPatternAppliedMultiplier(item)
+    })
+  }
+
+  if (hasJack && state.selectedPatterns.includes('vibroMain')) {
+    multiplierTotal += 1.15
+  }
+
+  if (selectedCount >= 3) {
+    multiplierTotal *= 0.6
+  }
+
+  return unit * multiplierTotal
 }
 
 function calculatePerkPoint() {
@@ -1522,69 +1793,31 @@ function calculatePerkPoint() {
       return total + unit * getAppliedMultiplier(item)
     }, 0)
 
-  let specialPenalty = 0
+  let patternChange = calculatePatternPointChange(unit)
 
+  let specialPenalty = 0
   if (state.selectedFlaws.includes('none')) {
-    specialPenalty =
-      state.selectedPerks.length === 0
-        ? unit * 15
-        : unit * 3
+    specialPenalty = state.selectedPerks.length === 0 ? unit * 15 : unit * 3
   }
 
   let positiveSynergy = 0
   let negativeSynergy = 0
 
-  if (
-    state.selectedPerks.includes('otaku') &&
-    state.selectedPerks.includes('dirty')
-  ) {
-    positiveSynergy += unit * 1.02
-  }
-
-  if (
-    state.selectedPerks.includes('collector') &&
-    state.selectedPerks.includes('twitter')
-  ) {
-    positiveSynergy += unit * 1.01
-  }
-
-  if (state.selectedPerks.includes('roblox') && Number(state.age) < 20) {
-    positiveSynergy += unit * 1.1
-  }
-
-  if (
-    state.selectedPerks.includes('oppositeSexChaser') &&
-    state.selectedPerks.includes('korean')
-  ) {
-    positiveSynergy += unit * 1.01
-  }
-
-  if (
-    state.selectedFlaws.includes('healthy') &&
-    state.selectedFlaws.includes('positive')
-  ) {
-    negativeSynergy += unit * 2
-  }
-
-  if (
-    state.selectedFlaws.includes('affectionDeficit') &&
-    state.selectedPerks.includes('mental')
-  ) {
-    negativeSynergy += unit * 2
-  }
+  if (state.selectedPerks.includes('otaku') && state.selectedPerks.includes('dirty')) positiveSynergy += unit * 1.02
+  if (state.selectedPerks.includes('collector') && state.selectedPerks.includes('twitter')) positiveSynergy += unit * 1.01
+  if (state.selectedPerks.includes('roblox') && Number(state.age) < 20) positiveSynergy += unit * 1.1
+  if (state.selectedPerks.includes('oppositeSexChaser') && state.selectedPerks.includes('korean')) positiveSynergy += unit * 1.01
+  if (state.selectedFlaws.includes('healthy') && state.selectedFlaws.includes('positive')) negativeSynergy += unit * 2
+  if (state.selectedFlaws.includes('affectionDeficit') && state.selectedPerks.includes('mental')) negativeSynergy += unit * 2
 
   flawChange += specialPenalty + negativeSynergy
-
-  const finalPoint =
-    initialPoint +
-    positiveChange +
-    positiveSynergy -
-    flawChange
+  const finalPoint = initialPoint + positiveChange + positiveSynergy - flawChange + patternChange
 
   return {
     initialPoint,
     positiveChange: positiveChange + positiveSynergy,
     flawChange,
+    patternChange,
     finalPoint,
   }
 }
@@ -1602,14 +1835,29 @@ function validateTraits() {
   const hasNone = state.selectedFlaws.includes('none')
 
   if (!hasNone && state.selectedFlaws.length < 5) {
+    state.activeTraitCategory = 'flaw'
     errorMessage.textContent = '리듬부정특성을 최소 5개 선택해주세요.'
     return
   }
 
-  if (
-    state.selectedPerks.includes('transition') &&
-    getTransitionMultiplier() === 0
-  ) {
+  if (state.selectedPatterns.length < 1) {
+    state.activeTraitCategory = 'pattern'
+    errorMessage.textContent = '패턴특성을 최소 1개 선택해주세요.'
+    return
+  }
+
+  const incompleteGroup = requiredTraitGroups.find(
+    (group) => !isRequiredGroupCompleted(group),
+  )
+
+  if (incompleteGroup) {
+    const firstId = incompleteGroup.ids[0]
+    state.activeTraitCategory = flaws.some((item) => item.id === firstId) ? 'flaw' : 'perk'
+    errorMessage.textContent = `필수특성을 선택해주세요. ${incompleteGroup.label}는 선택해야 합니다.`
+    return
+  }
+
+  if (state.selectedPerks.includes('transition') && getTransitionMultiplier() === 0) {
     state.activeTraitCategory = 'perk'
     errorMessage.textContent = '성전환 방향을 선택해주세요.'
     return
@@ -1682,18 +1930,30 @@ function renderNameInput() {
 
 }
 
+function getDisplayedTalentSummary(result) {
+  const transferred = result.keyConstantTotal * 0.3
+  const distributedHalf = transferred / 2
+
+  return {
+    basic: result.basicTalent + distributedHalf,
+    acquired: result.finalPoint + distributedHalf,
+    effort: result.keyConstantTotal - transferred,
+  }
+}
+
 function renderFinalResult() {
   const globalRestartButton = document.querySelector('#globalRestartButton')
   if (globalRestartButton) globalRestartButton.remove()
 
   const result = calculateFinalResult()
+  const displayedSummary = getDisplayedTalentSummary(result)
   const keyCards = []
 
   if (result.key4 && (state.keys === '4k' || state.keys === 'both')) {
     keyCards.push(
       createKeyResultCard(
         '4키',
-        result.key4,
+        { ...result.key4, finalRank: result.rank },
         fourKeyShortRanks,
         fourKeyLongRanks,
         state.play4k,
@@ -1705,7 +1965,7 @@ function renderFinalResult() {
     keyCards.push(
       createKeyResultCard(
         '7키',
-        result.key7,
+        { ...result.key7, finalRank: result.rank },
         sevenKeyRanks,
         sevenKeyRanks,
         state.play7k,
@@ -1718,7 +1978,7 @@ function renderFinalResult() {
       <section class="result-container">
         <div
           id="resultCaptureArea"
-          class="result-capture rank-theme rank-${result.rank.toLowerCase()}"
+          class="result-capture rank-theme rank-${getRankClassName(result.rank)}"
         >
           <div class="page-header result-page-header">
             <p class="step">FINAL RESULT</p>
@@ -1740,18 +2000,18 @@ function renderFinalResult() {
 
           <section class="final-summary-grid">
             <div class="summary-card">
-              <span>초기 재능상수</span>
-              <strong>${formatNumber(result.basicTalent)}</strong>
+              <span>기본 재능상수</span>
+              <strong>${formatNumber(displayedSummary.basic)}</strong>
             </div>
 
             <div class="summary-card">
-              <span>최종 포인트</span>
-              <strong>${formatNumber(result.finalPoint)}</strong>
+              <span>후천적 재능상수</span>
+              <strong>${formatNumber(displayedSummary.acquired)}</strong>
             </div>
 
             <div class="summary-card">
-              <span>키 세부 상수 총합</span>
-              <strong>${formatNumber(result.keyConstantTotal)}</strong>
+              <span>노력 재능상수</span>
+              <strong>${formatNumber(displayedSummary.effort)}</strong>
             </div>
           </section>
 
@@ -1772,8 +2032,31 @@ function renderFinalResult() {
               <span>리듬부정특성</span>
               <p>${getSelectedTraitNames(state.selectedFlaws, flaws)}</p>
             </div>
+
+            <div class="selected-trait-group selected-trait-pattern">
+              <span>패턴특성</span>
+              <p>${getSelectedTraitNames(state.selectedPatterns, patterns)}</p>
+            </div>
           </section>
         </div>
+
+
+        <section id="shareCaptureArea" class="share-result-card rank-theme rank-${getRankClassName(result.rank)}" aria-hidden="true">
+          <div class="share-result-top">
+            <div><p>OSU!MANIA TALENT</p><h3>${escapeHtml(state.name)}님의 재능상수</h3></div>
+            <div class="share-rank-block"><span>RANK</span><strong>${result.rank}</strong><small>${formatNumber(result.total)}</small></div>
+          </div>
+          <div class="share-summary-row">
+            <div><span>기본 재능상수</span><strong>${formatNumber(displayedSummary.basic)}</strong></div>
+            <div><span>후천적 재능상수</span><strong>${formatNumber(displayedSummary.acquired)}</strong></div>
+            <div><span>노력 재능상수</span><strong>${formatNumber(displayedSummary.effort)}</strong></div>
+          </div>
+          <div class="share-key-results">
+            ${createShareKeyResult('4키', result.key4 ? { ...result.key4, finalRank: result.rank } : null, state.play4k, fourKeyShortRanks, fourKeyLongRanks)}
+            ${createShareKeyResult('7키', result.key7 ? { ...result.key7, finalRank: result.rank } : null, state.play7k, sevenKeyRanks, sevenKeyRanks)}
+          </div>
+          <div id="shareTraitsCard" class="share-traits"><span>선택 특성</span><p>${getSelectedTraitNames(state.selectedPerks, perks)} / ${getSelectedTraitNames(state.selectedFlaws, flaws)} / ${getSelectedTraitNames(state.selectedPatterns, patterns)}</p></div>
+        </section>
 
         <section class="download-card" data-html2canvas-ignore="true">
           <div>
@@ -1813,15 +2096,49 @@ function renderFinalResult() {
   setupRankTooltip(result.rank)
 }
 
+function createShareKeyResult(label, result, currentPlay, shortRanks, longRanks) {
+  if (!result) return ''
+  const keyType = label === '4키' ? '4k' : '7k'
+  let shortDisplay = calculateUnitDisplayValue({ expected: result.shortExpected, currentRank: currentPlay.shortRank, keyType, noteType: 'short', years: currentPlay.years, noteTalent: result.constants.short })
+  let longDisplay = calculateUnitDisplayValue({ expected: result.longExpected, currentRank: currentPlay.longRank, keyType, noteType: 'long', years: currentPlay.years, noteTalent: result.constants.long })
+
+  if (result.finalRank === 'SS+') {
+    const currentShort = rankToNumber(currentPlay.shortRank)
+    const currentLong = rankToNumber(currentPlay.longRank)
+
+    if (shortDisplay - currentShort <= 1.25) {
+      shortDisplay = currentShort + 1.75
+    }
+
+    if (longDisplay - currentLong <= 1.25) {
+      longDisplay = currentLong + 1.75
+    }
+  }
+  return `<article class="share-key-card"><h4>${label}</h4><div class="share-rank-pair"><span>단놋</span><strong>${getRankLabel(rankToNumber(currentPlay.shortRank), shortRanks)} › ${getUnitDisplayLabel(shortDisplay, shortRanks, shortRanks.length - 1)}</strong></div><div class="share-rank-pair"><span>롱놋</span><strong>${getRankLabel(rankToNumber(currentPlay.longRank), longRanks)} › ${getUnitDisplayLabel(longDisplay, longRanks, longRanks.length - 1)}</strong></div></article>`
+}
+
 async function downloadResultImage() {
-  const captureArea = document.querySelector('#resultCaptureArea')
-  const traitsCard = document.querySelector('#selectedTraitsCard')
+  const isMobileDownload = window.matchMedia('(max-width: 700px)').matches
+
+  const captureArea = document.querySelector(
+    isMobileDownload ? '#shareCaptureArea' : '#resultCaptureArea',
+  )
+
+  const traitsCard = document.querySelector(
+    isMobileDownload ? '#shareTraitsCard' : '#selectedTraitsCard',
+  )
+
   const hideTraits = document.querySelector('#hideTraitsCheckbox').checked
   const button = document.querySelector('#downloadButton')
 
   button.disabled = true
   button.textContent = '이미지 생성 중...'
+
   captureArea.classList.add('is-capturing')
+
+  if (isMobileDownload) {
+    captureArea.classList.add('is-exporting')
+  }
 
   if (hideTraits) {
     traitsCard.classList.add('privacy-blur')
@@ -1837,16 +2154,22 @@ async function downloadResultImage() {
       useCORS: true,
       logging: false,
       onclone: (clonedDocument) => {
-        const clonedCaptureArea =
-          clonedDocument.querySelector('#resultCaptureArea')
+        const clonedCaptureArea = clonedDocument.querySelector(
+          isMobileDownload ? '#shareCaptureArea' : '#resultCaptureArea',
+        )
 
         if (clonedCaptureArea) {
           clonedCaptureArea.classList.add('is-capturing')
+
+          if (isMobileDownload) {
+            clonedCaptureArea.classList.add('is-exporting')
+          }
         }
 
         if (hideTraits) {
-          const clonedTraitsCard =
-            clonedDocument.querySelector('#selectedTraitsCard')
+          const clonedTraitsCard = clonedDocument.querySelector(
+            isMobileDownload ? '#shareTraitsCard' : '#selectedTraitsCard',
+          )
 
           if (clonedTraitsCard) {
             clonedTraitsCard.classList.add(
@@ -1866,7 +2189,7 @@ async function downloadResultImage() {
     console.error(error)
     alert('결과 이미지 생성에 실패했습니다.')
   } finally {
-    captureArea.classList.remove('is-capturing')
+    captureArea.classList.remove('is-capturing', 'is-exporting')
     traitsCard.classList.remove('privacy-blur')
     button.disabled = false
     button.textContent = 'PNG 다운로드'
@@ -1910,6 +2233,7 @@ function getRankDescription(rank) {
     A: '상위 30% 이상의 재능입니다. 적당한 노력과 함께 즐거운 게임 되세요',
     S: '상위 10% 이상의 재능입니다. 게임좀 열심히해도 되겠는데요?',
     SS: '상위 1%의 재능입니다! 이미 끝내주는 실력을 가졌거나, 곧 가지게 되실겁니다!',
+    'SS+': '당신은 상위 0.1% 이상의 신이 내린 재능을 가지고있습니다..',
   }
 
   return descriptions[rank] || ''
@@ -1933,8 +2257,6 @@ function createKeyResultCard(
           <p class="trait-kicker">${keyName.toUpperCase()} TALENT</p>
           <h3>당신은 향후 5년 이내에 높은 확률로...</h3>
         </div>
-
-        <strong>${formatNumber(sumKeyConstants(result.constants))}</strong>
       </div>
 
       <div class="expected-rank-grid">
@@ -1943,18 +2265,38 @@ function createKeyResultCard(
           currentPlay.shortRank,
           result.shortExpected,
           shortRanks,
+          {
+            noteType: 'short',
+            years: currentPlay.years,
+            noteTalent: result.constants.short,
+            maxRank: shortRanks.length - 1,
+            finalRank: result.finalRank,
+          },
         )}
         ${createExpectedRankItem(
           '롱놋 단위',
           currentPlay.longRank,
           result.longExpected,
           longRanks,
+          {
+            noteType: 'long',
+            years: currentPlay.years,
+            noteTalent: result.constants.long,
+            maxRank: longRanks.length - 1,
+            finalRank: result.finalRank,
+          },
         )}
       </div>
 
       <div class="constant-grid">
         ${createConstantItem('처리재능', result.constants.processing)}
-        ${createConstantItem('판정재능', result.constants.accuracy)}
+        ${createConstantItem(
+          '판정재능',
+          getDisplayedAccuracyConstant(
+            keyName,
+            result.constants.accuracy,
+          ),
+        )}
         ${createConstantItem('단놋재능', result.constants.short)}
         ${createConstantItem('롱놋재능', result.constants.long)}
       </div>
@@ -1962,7 +2304,13 @@ function createKeyResultCard(
   `
 }
 
-function createExpectedRankItem(label, currentRank, expected, ranks) {
+function createExpectedRankItem(
+  label,
+  currentRank,
+  expected,
+  ranks,
+  options = {},
+) {
   if (expected === null) {
     return `
       <div class="expected-rank-item is-hidden-rank">
@@ -1975,33 +2323,114 @@ function createExpectedRankItem(label, currentRank, expected, ranks) {
 
   const currentValue = rankToNumber(currentRank)
   const currentLabel = getRankLabel(currentValue, ranks)
-  const expectedLabel = getRankLabel(expected, ranks)
   const keyType = ranks === sevenKeyRanks ? '7k' : '4k'
+  let displayValue = calculateUnitDisplayValue({
+    expected,
+    currentRank,
+    keyType,
+    noteType: options.noteType,
+    years: options.years,
+    noteTalent: options.noteTalent,
+  })
+
+  if (
+    options.finalRank === 'SS+' &&
+    displayValue - currentValue <= 1.25
+  ) {
+    displayValue = currentValue + 1.75
+  }
+  const expectedLabel = getUnitDisplayLabel(displayValue, ranks, options.maxRank)
 
   return `
     <div class="expected-rank-item">
       <span>${label}</span>
-
       <div class="rank-growth">
-        <strong class="unit-rank ${getUnitRankClass(keyType, currentValue)}">
-          ${currentLabel}
-        </strong>
+        <strong class="unit-rank ${getUnitRankClass(keyType, currentValue)}">${currentLabel}</strong>
         <span>›</span>
-        <strong class="unit-rank unit-rank-result ${getUnitRankClass(keyType, expected)}">
-          ${expectedLabel}
-        </strong>
+        <strong class="unit-rank unit-rank-result ${getUnitRankClass(
+          keyType,
+          getUnitDisplayRankValue(displayValue, options.maxRank),
+        )}">${expectedLabel}</strong>
       </div>
     </div>
   `
 }
 
-function getUnitRankClass(keyType, value) {
-  const rank = Number(value) || 0
+function calculateUnitDisplayValue({ expected, currentRank, keyType, noteType, years, noteTalent }) {
+  let value = Number(expected)
+  const age = Number(state.age)
+  const currentValue = rankToNumber(currentRank)
+  const isNumericRank = currentValue >= 1 && currentValue <= 10
 
-  if (rank >= 1 && rank <= 10) {
-    return `unit-pastel-${rank}`
+  if (
+    age <= 35 &&
+    Number(years) <= 2 &&
+    currentRank !== 'not-playing' &&
+    isNumericRank
+  ) {
+    value += 0.85
   }
 
+  if (
+    noteType === 'short' &&
+    ((keyType === '4k' && currentValue >= 17) ||
+      (keyType === '7k' && currentValue >= 13))
+  ) {
+    value -= 0.75
+  }
+
+  if (noteType === 'long' && age < 40 && Number(noteTalent) >= 15) {
+    value += getLongNoteDisplayBonus(Number(noteTalent))
+  }
+
+  return roundToTwo(value)
+}
+
+function getLongNoteDisplayBonus(longTalent) {
+  if (longTalent < 15) return 0
+  if (longTalent < 30) return (Math.floor((longTalent - 15) / 5) + 1) * 0.75
+  if (longTalent < 40) return 2.25
+  return 2.25 + (Math.floor((longTalent - 40) / 10) + 1) * 0.75
+}
+
+function getUnitDisplayLabel(value, ranks, maxRank) {
+  const clamped = Math.max(0, Math.min(Number(value), maxRank + 0.74))
+  const whole = Math.floor(clamped)
+  const fraction = roundToTwo(clamped - whole)
+
+  if (whole <= 0) {
+    if (fraction >= 0.75 && maxRank >= 1) return `${getRankLabel(1, ranks)}-`
+    return getRankLabel(0, ranks)
+  }
+
+  if (whole >= maxRank) {
+    return getRankLabel(maxRank, ranks)
+  }
+
+  if (fraction >= 0.75) {
+    if (whole + 1 >= maxRank) {
+      return getRankLabel(maxRank, ranks)
+    }
+
+    return `${getRankLabel(whole + 1, ranks)}-`
+  }
+  if (fraction >= 0.5) return `${getRankLabel(whole, ranks)}+`
+  return getRankLabel(whole, ranks)
+}
+
+function getUnitDisplayRankValue(value, maxRank) {
+  const clamped = Math.max(0, Math.min(Number(value), maxRank + 0.74))
+  const whole = Math.floor(clamped)
+  const fraction = roundToTwo(clamped - whole)
+
+  if (whole >= maxRank) return maxRank
+  if (fraction >= 0.75) return whole + 1
+  return whole
+}
+
+function getUnitRankClass(keyType, value) {
+  const rank = Number(value) || 0
+  if (rank >= 1 && rank <= 10) return `unit-pastel-${rank}`
   if (keyType === '7k') {
     if (rank === 11) return 'unit-7k-gamma'
     if (rank === 12) return 'unit-7k-azimuth'
@@ -2009,23 +2438,34 @@ function getUnitRankClass(keyType, value) {
     if (rank >= 14) return 'unit-7k-stellium'
     return 'unit-unranked'
   }
+  const map={11:'unit-4k-alpha',12:'unit-4k-beta',13:'unit-4k-luminal',14:'unit-4k-gamma',15:'unit-4k-tachyon',16:'unit-4k-delta',17:'unit-4k-epsilon',18:'unit-4k-zeta',19:'unit-4k-eta',20:'unit-4k-theta',21:'unit-4k-iota',22:'unit-4k-kappa'}
+  return map[rank] || 'unit-unranked'
+}
 
-  const fourKeyClasses = {
-    11: 'unit-4k-alpha',
-    12: 'unit-4k-beta',
-    13: 'unit-4k-luminal',
-    14: 'unit-4k-gamma',
-    15: 'unit-4k-tachyon',
-    16: 'unit-4k-delta',
-    17: 'unit-4k-epsilon',
-    18: 'unit-4k-zeta',
-    19: 'unit-4k-eta',
-    20: 'unit-4k-theta',
-    21: 'unit-4k-iota',
-    22: 'unit-4k-kappa',
+function getDisplayedAccuracyConstant(keyName, accuracy) {
+  const numericAccuracy = Number(accuracy)
+
+  if (numericAccuracy > -10) {
+    return numericAccuracy
   }
 
-  return fourKeyClasses[rank] || 'unit-unranked'
+  if (keyName === '4키') {
+    const qualified =
+      rankToNumber(state.play4k.shortRank) >= 11 ||
+      rankToNumber(state.play4k.longRank) >= 8
+
+    return qualified ? numericAccuracy + 13.5 : numericAccuracy
+  }
+
+  if (keyName === '7키') {
+    const qualified =
+      rankToNumber(state.play7k.shortRank) >= 8 ||
+      rankToNumber(state.play7k.longRank) >= 8
+
+    return qualified ? numericAccuracy + 13.5 : numericAccuracy
+  }
+
+  return numericAccuracy
 }
 
 function createConstantItem(label, value) {
@@ -2054,27 +2494,36 @@ function calculateFinalResult() {
   const pointResult = calculatePerkPoint()
   const keyResults = calculateAllKeyConstants()
 
-  const key4Total = keyResults.key4
-    ? sumKeyConstants(keyResults.key4.constants)
-    : 0
+  const rawKeyConstantTotal =
+    (keyResults.key4 ? sumKeyConstants(keyResults.key4.constants) : 0) +
+    (keyResults.key7 ? sumKeyConstants(keyResults.key7.constants) : 0)
 
-  const key7Total = keyResults.key7
-    ? sumKeyConstants(keyResults.key7.constants)
-    : 0
-
-  const keyConstantTotal = key4Total + key7Total
+  const keyConstantRate = rawKeyConstantTotal > 100 ? 0.6 : 0.45
+  const keyConstantTotal = rawKeyConstantTotal * keyConstantRate
 
   const total =
     basicResult.basicTalent +
     pointResult.finalPoint +
     keyConstantTotal
 
+  const rank = getFinalRank(total)
+
+  /*
+   * 최종 랭크는 원래 키 상수로 확정합니다.
+   * 그 이후 고단위 유저에게만 랭크별 상수 보정을 적용하고,
+   * 보정된 상수로 5년 후 TALENT 예상 단위를 다시 계산합니다.
+   */
+  applyFinalRankTalentAdjustment(keyResults, rank)
+  calculateExpectedRanksForTalent(keyResults, pointResult.finalPoint)
+
   return {
     basicTalent: basicResult.basicTalent,
     finalPoint: pointResult.finalPoint,
+    rawKeyConstantTotal,
+    keyConstantRate,
     keyConstantTotal,
     total,
-    rank: getFinalRank(total),
+    rank,
     key4: keyResults.key4,
     key7: keyResults.key7,
   }
@@ -2094,29 +2543,53 @@ function calculateAllKeyConstants() {
     result.key7 = calculateKeyConstants('7k')
   }
 
+  applyDualKeyExperienceBonus(result)
   applyCrossKeyCareerBonus(result)
   applyMilitaryKeyBonus(result)
-  applySelectedTraitStatEffects(result)
-
-  const finalPoint = calculatePerkPoint().finalPoint
 
   if (result.key4) {
-    result.key4.shortExpected = calculateExpectedRank({
+    result.key4.preTraitInitialConstants = {
+      ...result.key4.constants,
+    }
+  }
+
+  if (result.key7) {
+    result.key7.preTraitInitialConstants = {
+      ...result.key7.constants,
+    }
+  }
+
+  applySelectedTraitStatEffects(result)
+
+  return result
+}
+
+function calculateExpectedRanksForTalent(keyResults, finalPoint) {
+  if (keyResults.key4) {
+    keyResults.key4.shortExpected = calculateExpectedRank({
       currentRank: state.play4k.shortRank,
-      noteConstant: result.key4.constants.short,
-      processingConstant: result.key4.constants.processing,
+      noteConstant: keyResults.key4.constants.short,
+      processingConstant: keyResults.key4.constants.processing,
       pointValue: finalPoint,
       type: 'short',
       maxRank: 22,
+      keyType: '4k',
+      initialLongRank: state.play4k.longRank,
+      preTraitInitialConstants:
+        keyResults.key4.preTraitInitialConstants,
     })
 
-    result.key4.longExpected = calculateExpectedRank({
+    keyResults.key4.longExpected = calculateExpectedRank({
       currentRank: state.play4k.longRank,
-      noteConstant: result.key4.constants.long,
-      processingConstant: result.key4.constants.processing,
+      noteConstant: keyResults.key4.constants.long,
+      processingConstant: keyResults.key4.constants.processing,
       pointValue: finalPoint,
       type: 'long',
       maxRank: 19,
+      keyType: '4k',
+      initialLongRank: state.play4k.longRank,
+      preTraitInitialConstants:
+        keyResults.key4.preTraitInitialConstants,
     })
 
     const fourKeyYears = Number(state.play4k.years)
@@ -2128,8 +2601,8 @@ function calculateAllKeyConstants() {
       state.play4k.shortRank !== 'not-playing' &&
       currentShortRank < 10
     ) {
-      result.key4.shortExpected = Math.max(
-        result.key4.shortExpected,
+      keyResults.key4.shortExpected = Math.max(
+        keyResults.key4.shortExpected,
         currentShortRank + 1,
       )
     }
@@ -2139,34 +2612,118 @@ function calculateAllKeyConstants() {
       state.play4k.longRank !== 'not-playing' &&
       currentLongRank < 10
     ) {
-      result.key4.longExpected = Math.max(
-        result.key4.longExpected,
+      keyResults.key4.longExpected = Math.max(
+        keyResults.key4.longExpected,
         currentLongRank + 1,
       )
     }
   }
 
-  if (result.key7) {
-    result.key7.shortExpected = calculateExpectedRank({
+  if (keyResults.key7) {
+    keyResults.key7.shortExpected = calculateExpectedRank({
       currentRank: state.play7k.shortRank,
-      noteConstant: result.key7.constants.short,
-      processingConstant: result.key7.constants.processing,
+      noteConstant: keyResults.key7.constants.short,
+      processingConstant: keyResults.key7.constants.processing,
       pointValue: finalPoint,
       type: 'short',
       maxRank: 15,
+      keyType: '7k',
+      initialLongRank: state.play7k.longRank,
+      preTraitInitialConstants:
+        keyResults.key7.preTraitInitialConstants,
     })
 
-    result.key7.longExpected = calculateExpectedRank({
+    keyResults.key7.longExpected = calculateExpectedRank({
       currentRank: state.play7k.longRank,
-      noteConstant: result.key7.constants.long,
-      processingConstant: result.key7.constants.processing,
+      noteConstant: keyResults.key7.constants.long,
+      processingConstant: keyResults.key7.constants.processing,
       pointValue: finalPoint,
       type: 'long',
       maxRank: 15,
+      keyType: '7k',
+      initialLongRank: state.play7k.longRank,
+      preTraitInitialConstants:
+        keyResults.key7.preTraitInitialConstants,
     })
   }
+}
 
-  return result
+function getInitialRankTalentTier(keyType) {
+  if (keyType === '4k') {
+    if (
+      rankToNumber(state.play4k.shortRank) >= 16 ||
+      rankToNumber(state.play4k.longRank) >= 14
+    ) return 'high'
+
+    if (
+      rankToNumber(state.play4k.shortRank) >= 11 ||
+      rankToNumber(state.play4k.longRank) >= 11
+    ) return 'mid'
+
+    return 'none'
+  }
+
+  if (keyType === '7k') {
+    if (
+      rankToNumber(state.play7k.shortRank) >= 12 ||
+      rankToNumber(state.play7k.longRank) >= 12
+    ) return 'high'
+
+    if (
+      rankToNumber(state.play7k.shortRank) >= 8 ||
+      rankToNumber(state.play7k.longRank) >= 8
+    ) return 'mid'
+
+    return 'none'
+  }
+
+  return 'none'
+}
+
+function getTalentRankConstantAdjustment(rank, tier) {
+  const highAdjustments = {
+    'SS+': -3.5,
+    SS: -8.25,
+    S: -11.88,
+    A: -12.33,
+    B: -13.43,
+    C: -14.53,
+    D: -15.63,
+    F: -18,
+  }
+
+  const midAdjustments = {
+    'SS+': -1,
+    SS: -2.125,
+    S: -3.94,
+    A: -4.165,
+    B: -5.715,
+    C: -6.265,
+    D: -7.815,
+    F: -9,
+  }
+
+  if (tier === 'high') return highAdjustments[rank] ?? 0
+  if (tier === 'mid') return midAdjustments[rank] ?? 0
+  return 0
+}
+
+function applyFinalRankTalentAdjustment(keyResults, rank) {
+  if (keyResults.key4) {
+    const adjustment = getTalentRankConstantAdjustment(
+      rank,
+      getInitialRankTalentTier('4k'),
+    )
+    if (adjustment) addToAllConstants(keyResults.key4.constants, adjustment)
+  }
+
+  if (keyResults.key7) {
+    const adjustment = getTalentRankConstantAdjustment(
+      rank,
+      getInitialRankTalentTier('7k'),
+    )
+    if (adjustment) addToAllConstants(keyResults.key7.constants, adjustment)
+  }
 }
 
 function calculateKeyConstants(key) {
@@ -2251,8 +2808,8 @@ function applyInitialRankConstants(
   const rawLong = longPlaying ? longRank : 0
 
   if (key === '4k') {
-    const adjustedShort = rawShort >= 11 ? rawShort * 1.5 : rawShort
-    const adjustedLong = rawLong >= 11 ? rawLong * 1.5 : rawLong
+    const adjustedShort = rawShort >= 11 ? rawShort * 1.37 : rawShort
+    const adjustedLong = rawLong >= 11 ? rawLong * 1.43 : rawLong
 
     constants.short += adjustedShort
     constants.long += adjustedLong
@@ -2336,7 +2893,7 @@ function applyFourKeyExperienceConstants(
   let matchedExperienceRule = false
 
   if (years >= 4 && shortPlaying && shortRank >= 16) {
-    experienceDelta.short += 5
+    experienceDelta.short += 2.7
     matchedExperienceRule = true
   }
 
@@ -2386,14 +2943,25 @@ function applyFourKeyExperienceConstants(
       (longPlaying && longRank <= 10)
     )
   ) {
-    experienceDelta.processing -= 10
+    const shortGapBelowAlpha =
+      shortPlaying && shortRank <= 10 ? 11 - shortRank : 0
+    const longGapBelowAlpha =
+      longPlaying && longRank <= 10 ? 11 - longRank : 0
+    const largestGapBelowAlpha = Math.max(
+      shortGapBelowAlpha,
+      longGapBelowAlpha,
+    )
+
+    const alphaDownwardStep = 1.43 * 1.2
+    experienceDelta.processing -=
+      largestGapBelowAlpha * alphaDownwardStep
     matchedExperienceRule = true
 
     if (longRank < shortRank) {
-      experienceDelta.long -= 8
+      experienceDelta.long -= 4.4
     } else if (shortRank < longRank) {
       experienceDelta.long += 7
-      experienceDelta.short -= 10
+      experienceDelta.short -= 6.6
     }
   }
 
@@ -2474,6 +3042,22 @@ function applyRankDifferencePenalty(
   }
 }
 
+function applyDualKeyExperienceBonus(keyResults) {
+  const age = Number(state.age)
+  const fourYears = Number(state.play4k.years)
+  const sevenYears = Number(state.play7k.years)
+
+  if (
+    age < 30 &&
+    state.keys === 'both' &&
+    fourYears >= 5 &&
+    sevenYears >= 5
+  ) {
+    if (keyResults.key4) addToAllConstants(keyResults.key4.constants, 2)
+    if (keyResults.key7) addToAllConstants(keyResults.key7.constants, 2)
+  }
+}
+
 function getCrossKeyCareerBonus() {
   const fourYears =
     state.keys === '4k' || state.keys === 'both'
@@ -2547,7 +3131,7 @@ function applyMilitaryKeyBonus(keyResults) {
 }
 
 function applySelectedTraitStatEffects(keyResults) {
-  const selectedItems = [
+  const selectedNonPatternItems = [
     ...state.selectedPerks
       .map((id) => perks.find((item) => item.id === id)),
     ...state.selectedFlaws
@@ -2555,7 +3139,7 @@ function applySelectedTraitStatEffects(keyResults) {
       .map((id) => flaws.find((item) => item.id === id)),
   ].filter(Boolean)
 
-  selectedItems.forEach((item) => {
+  selectedNonPatternItems.forEach((item) => {
     if (item.statEffects) {
       applyGenericStatEffects(keyResults, item.statEffects)
     }
@@ -2568,6 +3152,130 @@ function applySelectedTraitStatEffects(keyResults) {
       applyEffectsToConstants(keyResults.key7.constants, item.key7Effects)
     }
   })
+
+  applyPatternStatEffects(keyResults)
+}
+
+function createEmptyEffects() {
+  return {
+    processing: 0,
+    accuracy: 0,
+    short: 0,
+    long: 0,
+  }
+}
+
+function getPatternEffectsForKey(item, keyType) {
+  const effects = createEmptyEffects()
+
+  if (item.statEffects) {
+    addConstants(effects, item.statEffects)
+  }
+
+  const keyEffects =
+    keyType === '4k' ? item.key4Effects : item.key7Effects
+
+  if (keyEffects) {
+    addConstants(effects, keyEffects)
+  }
+
+  if (
+    item.id === 'vibroMain' &&
+    keyType === '4k' &&
+    rankToNumber(state.play4k.shortRank) >= 17
+  ) {
+    effects.processing += 4
+    effects.short += 4
+  }
+
+  return effects
+}
+
+function scaleEffects(effects, multiplier) {
+  return {
+    processing: effects.processing * multiplier,
+    accuracy: effects.accuracy * multiplier,
+    short: effects.short * multiplier,
+    long: effects.long * multiplier,
+  }
+}
+
+function calculatePatternEffectsForKey(keyType) {
+  const selected = state.selectedPatterns
+    .map((id) => patterns.find((item) => item.id === id))
+    .filter(Boolean)
+
+  const total = createEmptyEffects()
+  const hasJack = state.selectedPatterns.includes('jackMain')
+  const hasSpeed = state.selectedPatterns.includes('speedMain')
+
+  if (hasJack && hasSpeed) {
+    const jack = patterns.find((item) => item.id === 'jackMain')
+    const speed = patterns.find((item) => item.id === 'speedMain')
+    const jackSpeedTotal = createEmptyEffects()
+
+    addConstants(
+      jackSpeedTotal,
+      getPatternEffectsForKey(jack, keyType),
+    )
+    addConstants(
+      jackSpeedTotal,
+      getPatternEffectsForKey(speed, keyType),
+    )
+    addConstants(total, scaleEffects(jackSpeedTotal, 0.6))
+
+    selected
+      .filter((item) => !['jackMain', 'speedMain'].includes(item.id))
+      .forEach((item) => {
+        addConstants(total, getPatternEffectsForKey(item, keyType))
+      })
+  } else {
+    selected.forEach((item) => {
+      addConstants(total, getPatternEffectsForKey(item, keyType))
+    })
+  }
+
+  if (selected.length >= 3) {
+    const reduced = scaleEffects(total, 0.6)
+    total.processing = reduced.processing
+    total.accuracy = reduced.accuracy
+    total.short = reduced.short
+    total.long = reduced.long
+  }
+
+  if (
+    state.selectedPatterns.includes('longNoteMain') &&
+    state.selectedPatterns.includes('hybridMain')
+  ) {
+    total.short -= 3.5
+  }
+
+  const nonLongPatternCount = state.selectedPatterns.filter(
+    (id) => !['longNoteMain', 'hybridMain'].includes(id),
+  ).length
+
+  if (nonLongPatternCount >= 3) {
+    total.processing -= 3.4
+    total.short -= 3.4
+  }
+
+  return total
+}
+
+function applyPatternStatEffects(keyResults) {
+  if (keyResults.key4) {
+    applyEffectsToConstants(
+      keyResults.key4.constants,
+      calculatePatternEffectsForKey('4k'),
+    )
+  }
+
+  if (keyResults.key7) {
+    applyEffectsToConstants(
+      keyResults.key7.constants,
+      calculatePatternEffectsForKey('7k'),
+    )
+  }
 }
 
 function applyGenericStatEffects(keyResults, effects) {
@@ -2596,10 +3304,10 @@ function addToAllConstants(constants, value) {
 }
 
 function addConstants(target, source) {
-  target.processing += source.processing
-  target.accuracy += source.accuracy
-  target.short += source.short
-  target.long += source.long
+  target.processing += Number(source.processing) || 0
+  target.accuracy += Number(source.accuracy) || 0
+  target.short += Number(source.short) || 0
+  target.long += Number(source.long) || 0
 }
 
 function doubleNegativeConstants(constants) {
@@ -2627,6 +3335,41 @@ function rankToNumber(value) {
   return Number(value) || 0
 }
 
+function getInitialLongProcessingContribution(keyType, initialLongRank) {
+  const rawLong = rankToNumber(initialLongRank)
+
+  if (rawLong <= 0) {
+    return 0
+  }
+
+  if (keyType === '4k') {
+    const adjustedLong = rawLong >= 11 ? rawLong * 1.43 : rawLong
+    return adjustedLong / 2
+  }
+
+  const adjustedLong =
+    rawLong >= 11 ? rawLong * 1.3 : rawLong * 1.2
+
+  return adjustedLong / 2
+}
+
+function getShortExpectedProcessingConstant({
+  processingConstant,
+  keyType,
+  initialLongRank,
+}) {
+  const longContribution = getInitialLongProcessingContribution(
+    keyType,
+    initialLongRank,
+  )
+
+  return (
+    processingConstant -
+    longContribution +
+    longContribution * 0.45
+  )
+}
+
 function calculateExpectedRank({
   currentRank,
   noteConstant,
@@ -2634,6 +3377,9 @@ function calculateExpectedRank({
   pointValue,
   type,
   maxRank,
+  keyType,
+  initialLongRank,
+  preTraitInitialConstants,
 }) {
   if (currentRank === 'not-playing') {
     return null
@@ -2648,10 +3394,40 @@ function calculateExpectedRank({
 
   let addedConstant = 0
 
-  if (type === 'short') {
+  if (type === 'short' && keyType === '4k') {
+    const baseShortConstant =
+      Number(preTraitInitialConstants?.short) || 0
+    const baseProcessingConstant =
+      Number(preTraitInitialConstants?.processing) || 0
+
+    const traitShortDelta =
+      noteConstant - baseShortConstant
+    const traitProcessingDelta =
+      processingConstant - baseProcessingConstant
+
+    const longRank = rankToNumber(initialLongRank)
+    const baseShortGrowth = baseShortConstant / 14
+    const longInfluence =
+      Math.max(0, longRank - 10) * 0.08
+    const traitInfluence =
+      traitShortDelta / 10 +
+      traitProcessingDelta / 18
+
     addedConstant =
-      processingConstant > noteConstant
-        ? processingConstant / 10
+      baseShortGrowth +
+      longInfluence +
+      traitInfluence
+  } else if (type === 'short') {
+    const shortProcessingConstant =
+      getShortExpectedProcessingConstant({
+        processingConstant,
+        keyType,
+        initialLongRank,
+      })
+
+    addedConstant =
+      shortProcessingConstant > noteConstant
+        ? shortProcessingConstant / 10
         : noteConstant / 8
   } else {
     const larger = Math.max(noteConstant, processingConstant)
@@ -2665,10 +3441,13 @@ function calculateExpectedRank({
   }
 
   const pointConstant = pointValue / 10
-  const increase = Math.trunc((addedConstant + pointConstant) / 2)
-  const predicted = currentNumber + increase
+  const rawIncrease = (addedConstant + pointConstant) / 2
+  const increase = roundToTwo(rawIncrease)
+  const predicted = roundToTwo(currentNumber + increase)
 
-  return Math.min(maxRank, Math.max(currentNumber, predicted))
+  return roundToTwo(
+    Math.min(maxRank, Math.max(currentNumber, predicted)),
+  )
 }
 
 function getRankLabel(value, ranks) {
@@ -2689,6 +3468,7 @@ function getRankLabel(value, ranks) {
 }
 
 function getFinalRank(total) {
+  if (total > 145) return 'SS+'
   if (total >= 91) return 'SS'
   if (total >= 80) return 'S'
   if (total >= 50) return 'A'
@@ -2696,6 +3476,10 @@ function getFinalRank(total) {
   if (total >= 20) return 'C'
   if (total >= 10) return 'D'
   return 'F'
+}
+
+function getRankClassName(rank) {
+  return String(rank).toLowerCase().replace('+', '-plus')
 }
 
 function escapeHtml(value) {
@@ -2953,3 +3737,80 @@ function createOrdinal(number) {
 }
 
 renderHome()
+
+const patterns = [
+  {
+    id: 'patternUnknown',
+    name: '알 수 없음',
+    signedMultiplier: -1.12,
+    description: '당신은 아직 뭐가 무슨 패턴인지조차 구분할 수 없을정도로 경험이 부족합니다.',
+    statEffects: { processing: -4, accuracy: -4, short: -4, long: -4 },
+  },
+  {
+    id: 'jackMain',
+    name: '잭메인',
+    signedMultiplier: 1.21,
+    description: '당신은 연타만이 세상을 통솔하고 지배할 수 있는 유일한 길이라고 굳게 믿고있습니다. 세션을 플레이할때 주로 코드잭 맵이나 연타 맵 위주의 플레이를 즐깁니다.',
+    key4Effects: { processing: 3.1, accuracy: -2.2, long: -11.3, short: 3.6 },
+    key7Effects: { processing: 5.1, accuracy: -1.1, long: -12.1, short: 3.3 },
+  },
+  {
+    id: 'speedMain',
+    name: '스피드메인',
+    signedMultiplier: 1.17,
+    description: '당신은 부족한 피지컬을 뛰어난 리딩력과 모양을 보고 처리하는 방식으로 터득했습니다. 세션을 플레이할때 주로 싱글스트림, 고BPM의 계단형맵, 딜레이 등을 즐깁니다.',
+    key4Effects: { processing: 3.9, accuracy: -3.3, long: -3.1, short: 3 },
+    key7Effects: { processing: 4.2, accuracy: -3.1, long: -4.1, short: 3.2 },
+  },
+  {
+    id: 'techMain',
+    name: '테크메인',
+    signedMultiplier: 1.23,
+    description: '당신은 온갖 패턴이 화려하게 쏟아져 내려오고, 정신없으면서 곡을 다양하게 표현하는 방식을 즐깁니다. 세션을 플레이할때 주로 덤프나 테크스러운 맵을 즐겨합니다.',
+    key4Effects: { processing: 2, accuracy: 2.8, long: 1.1, short: 2.3 },
+    key7Effects: { processing: 3, accuracy: 3.5, long: 1.1, short: 2.6 },
+  },
+  {
+    id: 'streamMain',
+    name: '스트림메인',
+    signedMultiplier: 1.15,
+    description: '당신은 모든 VSRG 패턴의 기본기를 극한으로 다지기 위해 노력합니다. BPM이 얼마가 됐든 정직하고 끊임없이 균일하게 내려져오는 스트림, 거미줄 등의 맵을 세션중 즐겨합니다.',
+    key4Effects: { processing: 2.1, accuracy: 0.8, long: 1.3, short: 2.5 },
+    key7Effects: { processing: 3.8, accuracy: 3.1, long: 3.1, short: 2.2 },
+  },
+  {
+    id: 'vibroMain',
+    name: '떨기메인',
+    signedMultiplier: 1.08,
+    description: '당신은 연타따위에 더이상 종속되지 않고 osu!mania의 미래로 나아가기 위해 극한의 속도와 컨트롤을 익히는 또다른 방향성에 눈을 떴습니다. vibro는 더이상 기행이 아닌 Skill 입니다.',
+    key4Effects: { processing: 3, accuracy: 0.5, long: -11, short: 4.6 },
+    key7Effects: { processing: 2.5, accuracy: 0.1, long: -18, short: 1.3 },
+  },
+  {
+    id: 'accuracyMain',
+    name: '판정메인',
+    signedMultiplier: 1.02,
+    lowRankSignedMultiplier: -1.12,
+    description: '당신은 본인이 하고있는것이 "리듬"게임 임을 명확하게 인지하고, 내려오는 노트를 16.5ms의 판정 안에 정확하게 누르는 행위에 즐거움과 성취감을 느끼는 판정유저입니다.',
+    key4Effects: { processing: -1.3, accuracy: 11, long: -3, short: 1.2 },
+    key7Effects: { processing: -1.5, accuracy: 15, long: -5, short: 1.3 },
+  },
+  {
+    id: 'longNoteMain',
+    name: '롱놋메인',
+    signedMultiplier: 1.09,
+    description: '당신은 홀드를 정확하게 누르고, 때는 적절함, 또는 그저 쉴드패턴이나 여러 롱노트 기반의 패턴을 처리하는 것을 즐깁니다. O2JAM식 패턴이나 4k LN Pack 등을 즐겨 플레이합니다.',
+    key4Effects: { processing: 0.2, accuracy: 0.1, long: 10, short: -7.5 },
+    key7Effects: { processing: 1.2, accuracy: 0.9, long: 12, short: 4.2 },
+  },
+  {
+    id: 'hybridMain',
+    name: '하브메인',
+    signedMultiplier: 1.12,
+    lowRankSignedMultiplier: -1.12,
+    description: '당신은 Osu!mania에서만 볼 수 있는 독특하면서, 누군가에겐 불쾌하고, 누군가에겐 즐겁고 재밌다고 여겨지는 롱노트와 단노트가 적절하게 섞인 Ranked map 스타일을 즐겨 플레이합니다.',
+    key4Effects: { processing: 0.6, accuracy: 0.6, long: 0.6, short: 0.6 },
+    key7Effects: { processing: 0.6, accuracy: 0.6, long: 0.6, short: 0.6 },
+  },
+]
+
