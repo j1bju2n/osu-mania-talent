@@ -1821,6 +1821,7 @@ async function downloadResultImage() {
 
   button.disabled = true
   button.textContent = '이미지 생성 중...'
+  captureArea.classList.add('is-capturing')
 
   if (hideTraits) {
     traitsCard.classList.add('privacy-blur')
@@ -1836,13 +1837,23 @@ async function downloadResultImage() {
       useCORS: true,
       logging: false,
       onclone: (clonedDocument) => {
-        if (!hideTraits) return
+        const clonedCaptureArea =
+          clonedDocument.querySelector('#resultCaptureArea')
 
-        const clonedTraitsCard =
-          clonedDocument.querySelector('#selectedTraitsCard')
+        if (clonedCaptureArea) {
+          clonedCaptureArea.classList.add('is-capturing')
+        }
 
-        if (clonedTraitsCard) {
-          clonedTraitsCard.classList.add('privacy-blur', 'capture-privacy-mask')
+        if (hideTraits) {
+          const clonedTraitsCard =
+            clonedDocument.querySelector('#selectedTraitsCard')
+
+          if (clonedTraitsCard) {
+            clonedTraitsCard.classList.add(
+              'privacy-blur',
+              'capture-privacy-mask',
+            )
+          }
         }
       },
     })
@@ -1855,6 +1866,7 @@ async function downloadResultImage() {
     console.error(error)
     alert('결과 이미지 생성에 실패했습니다.')
   } finally {
+    captureArea.classList.remove('is-capturing')
     traitsCard.classList.remove('privacy-blur')
     button.disabled = false
     button.textContent = 'PNG 다운로드'

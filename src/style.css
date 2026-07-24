@@ -1417,3 +1417,110 @@ select option {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+
+/* html2canvas 전용 단순화 모드: 실제 사이트 화면에는 적용되지 않음 */
+.result-capture.is-capturing,
+.result-capture.is-capturing * {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  filter: none !important;
+  animation: none !important;
+  transition: none !important;
+}
+
+.result-capture.is-capturing *::before,
+.result-capture.is-capturing *::after {
+  display: none !important;
+}
+
+.result-capture.is-capturing {
+  background: #0b0b0d !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+.result-capture.is-capturing .final-rank-card,
+.result-capture.is-capturing .summary-card,
+.result-capture.is-capturing .key-result-card,
+.result-capture.is-capturing .expected-rank-item,
+.result-capture.is-capturing .constant-item,
+.result-capture.is-capturing .selected-traits-card,
+.result-capture.is-capturing .selected-trait-group,
+.result-capture.is-capturing .unit-rank {
+  box-shadow: none !important;
+  text-shadow: none !important;
+  background-image: none !important;
+}
+
+.result-capture.is-capturing .final-rank-card {
+  overflow: hidden !important;
+  border-width: 1px !important;
+  border-style: solid !important;
+}
+
+.result-capture.is-capturing.rank-f .final-rank-card { background: #111113 !important; border-color: #27272a !important; }
+.result-capture.is-capturing.rank-d .final-rank-card { background: #18181b !important; border-color: #3f3f46 !important; }
+.result-capture.is-capturing.rank-c .final-rank-card { background: #202024 !important; border-color: #52525b !important; }
+.result-capture.is-capturing.rank-b .final-rank-card { background: #20232a !important; border-color: #71717a !important; }
+.result-capture.is-capturing.rank-a .final-rank-card { background: #282313 !important; border-color: #8a7420 !important; }
+.result-capture.is-capturing.rank-s .final-rank-card { background: #322912 !important; border-color: #b78d18 !important; }
+.result-capture.is-capturing.rank-ss .final-rank-card { background: #3a2b0c !important; border-color: #d6b94f !important; }
+
+.result-capture.is-capturing .summary-card,
+.result-capture.is-capturing .key-result-card,
+.result-capture.is-capturing .selected-traits-card {
+  background: #141417 !important;
+  border-color: #2f2f35 !important;
+}
+
+.result-capture.is-capturing .expected-rank-item,
+.result-capture.is-capturing .constant-item,
+.result-capture.is-capturing .selected-trait-group {
+  background: #18181c !important;
+  border-color: #303038 !important;
+}
+
+.result-capture.is-capturing .unit-rank {
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  outline: none !important;
+}
+.result-capture.is-capturing .unit-rank-result {
+  outline: 1px solid rgba(255, 255, 255, 0.18) !important;
+  outline-offset: 1px !important;
+}
+
+.result-capture.is-capturing .unit-pastel-1 { color: #fecaca !important; background: #3a2525 !important; }
+.result-capture.is-capturing .unit-pastel-2 { color: #fed7aa !important; background: #3b2b1f !important; }
+.result-capture.is-capturing .unit-pastel-3 { color: #fef08a !important; background: #3a351d !important; }
+.result-capture.is-capturing .unit-pastel-4 { color: #d9f99d !important; background: #29351f !important; }
+.result-capture.is-capturing .unit-pastel-5 { color: #a7f3d0 !important; background: #1f352c !important; }
+.result-capture.is-capturing .unit-pastel-6 { color: #a5f3fc !important; background: #1e3437 !important; }
+.result-capture.is-capturing .unit-pastel-7 { color: #bfdbfe !important; background: #223047 !important; }
+.result-capture.is-capturing .unit-pastel-8 { color: #c4b5fd !important; background: #292441 !important; }
+.result-capture.is-capturing .unit-pastel-9 { color: #e9d5ff !important; background: #32263f !important; }
+.result-capture.is-capturing .unit-pastel-10 { color: #fbcfe8 !important; background: #3b2533 !important; }
+
+.result-capture.is-capturing .unit-4k-alpha { color: #fca5a5 !important; background: #3d2323 !important; }
+.result-capture.is-capturing .unit-4k-beta { color: #fde047 !important; background: #3b3518 !important; }
+.result-capture.is-capturing .unit-4k-luminal { color: #fb923c !important; background: #3c2718 !important; }
+.result-capture.is-capturing .unit-4k-gamma { color: #4ade80 !important; background: #153522 !important; }
+.result-capture.is-capturing .unit-4k-tachyon { color: #60a5fa !important; background: #1c2f49 !important; }
+.result-capture.is-capturing .unit-4k-delta { color: #c084fc !important; background: #302044 !important; }
+.result-capture.is-capturing .unit-4k-epsilon { color: #f9a8d4 !important; background: #3d2433 !important; }
+.result-capture.is-capturing .unit-4k-zeta { color: #e2e8f0 !important; background: #2b3138 !important; }
+.result-capture.is-capturing .unit-4k-eta { color: #ff5d5d !important; background: #3a1216 !important; }
+.result-capture.is-capturing .unit-4k-theta { color: #f8fafc !important; background: #25282d !important; }
+.result-capture.is-capturing .unit-4k-iota { color: #ffffff !important; background: #3a171b !important; }
+.result-capture.is-capturing .unit-4k-kappa { color: #ffffff !important; background: #000000 !important; border-color: #ffffff !important; }
+
+.result-capture.is-capturing .unit-7k-gamma { color: #d1fae5 !important; background: #1d3a35 !important; }
+.result-capture.is-capturing .unit-7k-azimuth { color: #fff1b8 !important; background: #46321b !important; }
+.result-capture.is-capturing .unit-7k-zenith { color: #ede9fe !important; background: #30284b !important; }
+.result-capture.is-capturing .unit-7k-stellium { color: #ffffff !important; background: #4a421f !important; }
+
+.result-capture.is-capturing .privacy-blur .selected-trait-group p,
+.result-capture.is-capturing .capture-privacy-mask .selected-trait-group p {
+  color: transparent !important;
+  text-shadow: 0 0 8px rgba(212, 212, 216, 0.95), 0 0 14px rgba(212, 212, 216, 0.75) !important;
+}
