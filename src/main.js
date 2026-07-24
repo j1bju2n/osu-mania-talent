@@ -1139,7 +1139,7 @@ function createKeyInputSection({
           id="${keyCode}Years"
           type="number"
           min="0"
-          max="30"
+          max="${Math.min(30, Math.max(0, Number(state.age) || 30))}"
           step="1"
           placeholder="예: 4"
           value="${years}"
@@ -1225,10 +1225,11 @@ function validatePlayInfo() {
       state.play4k.years === '' ||
       !Number.isInteger(years) ||
       years < 0 ||
-      years > 30
+      years > 30 ||
+      years > Number(state.age)
     ) {
       errorMessage.textContent =
-        '4키 플레이 경력을 0년부터 30년 사이로 입력해주세요.'
+        '4키 플레이 경력은 0년부터 현재 나이 이하로 입력해주세요.'
       return
     }
 
@@ -1250,10 +1251,11 @@ function validatePlayInfo() {
       state.play7k.years === '' ||
       !Number.isInteger(years) ||
       years < 0 ||
-      years > 30
+      years > 30 ||
+      years > Number(state.age)
     ) {
       errorMessage.textContent =
-        '7키 플레이 경력을 0년부터 30년 사이로 입력해주세요.'
+        '7키 플레이 경력은 0년부터 현재 나이 이하로 입력해주세요.'
       return
     }
 
@@ -1579,7 +1581,11 @@ function createTransitionTargetSelector() {
             { value: 'male', label: '남성으로 전환', multiplier: 1.1 },
             { value: 'other', label: '기타로 전환', multiplier: 2 },
           ]
-        : []
+        : [
+            { value: 'male', label: '남자로', multiplier: 1.17 },
+            { value: 'female', label: '여자로', multiplier: 1.18 },
+            { value: 'another', label: '또다른 무언가로', multiplier: 1.4 },
+          ]
 
   if (options.length === 0) {
     return `
@@ -1675,6 +1681,11 @@ function getTransitionMultiplier() {
   if (state.gender === 'female') {
     return state.transitionTarget === 'male' ? 1.1 : state.transitionTarget === 'other' ? 2 : 0
   }
+  if (state.gender === 'other') {
+    if (state.transitionTarget === 'male') return 1.17
+    if (state.transitionTarget === 'female') return 1.18
+    if (state.transitionTarget === 'another') return 1.4
+  }
   return 0
 }
 
@@ -1751,11 +1762,29 @@ function getTraitDisabledReason(item, type) {
     return 'NEWBIE 상태에서는 선택할 수 없습니다.'
   }
 
-  if (type === 'flaw' && item.id !== 'none' && state.selectedFlaws.includes('none')) {
-    return '해당없음과 함께 선택할 수 없습니다.'
+  if (
+    type === 'flaw' &&
+    item.id !== 'none' &&
+    state.selectedFlaws.includes('none')
+  ) {
+    const requiredGroup = getRequiredTraitGroup(item.id)
+    const canCompleteRequiredGroup =
+      requiredGroup && !isRequiredGroupCompleted(requiredGroup)
+
+    if (!canCompleteRequiredGroup) {
+      return '해당없음과는 미완료 필수특성만 함께 선택할 수 있습니다.'
+    }
   }
-  if (type === 'flaw' && item.id === 'none' && state.selectedFlaws.length > 0) {
-    return '다른 Flaw와 함께 선택할 수 없습니다.'
+
+  if (type === 'flaw' && item.id === 'none') {
+    const selectedNonRequiredFlaws = state.selectedFlaws.filter((id) => {
+      if (id === 'none') return false
+      return !getRequiredTraitGroup(id)
+    })
+
+    if (selectedNonRequiredFlaws.length > 0) {
+      return '해당없음은 필수특성 외의 Flaw와 함께 선택할 수 없습니다.'
+    }
   }
   if (
     type === 'pattern' &&
@@ -1807,9 +1836,24 @@ function toggleTrait(type, id) {
   }
 
   if (type === 'flaw' && id === 'none') {
-    state.selectedFlaws = ['none']
+    const selectedRequiredFlaws = state.selectedFlaws.filter(
+      (item) => item !== 'none' && Boolean(getRequiredTraitGroup(item)),
+    )
+
+    state.selectedFlaws = ['none', ...selectedRequiredFlaws]
   } else if (type === 'flaw') {
-    state.selectedFlaws = state.selectedFlaws.filter((item) => item !== 'none')
+    const requiredGroup = getRequiredTraitGroup(id)
+    const keepNone =
+      state.selectedFlaws.includes('none') &&
+      requiredGroup &&
+      !isRequiredGroupCompleted(requiredGroup)
+
+    if (!keepNone) {
+      state.selectedFlaws = state.selectedFlaws.filter(
+        (item) => item !== 'none',
+      )
+    }
+
     state.selectedFlaws.push(id)
   } else {
     targetList.push(id)
@@ -2238,22 +2282,33 @@ function renderFinalResult() {
 
 function createShareKeyResult(label, result, currentPlay, shortRanks, longRanks) {
   if (!result) return ''
+
   const keyType = label === '4키' ? '4k' : '7k'
-  let shortDisplay = calculateUnitDisplayValue({ expected: result.shortExpected, currentRank: currentPlay.shortRank, keyType, noteType: 'short', years: currentPlay.years, noteTalent: result.constants.short })
-  let longDisplay = calculateUnitDisplayValue({ expected: result.longExpected, currentRank: currentPlay.longRank, keyType, noteType: 'long', years: currentPlay.years, noteTalent: result.constants.long })
 
-  if (!state.newbie && result.finalRank === 'SS+') {
-    const currentShort = rankToNumber(currentPlay.shortRank)
-    const currentLong = rankToNumber(currentPlay.longRank)
+  const shortDisplay = calculateFinalExpectedDisplayValue({
+    expected: result.shortExpected,
+    currentRank: currentPlay.shortRank,
+    keyType,
+    noteType: 'short',
+    years: currentPlay.years,
+    noteTalent: result.constants.short,
+    finalRank: result.finalRank,
+  })
 
-    if (shortDisplay - currentShort <= 1.25) {
-      shortDisplay = currentShort + 1.75
-    }
+  const rawLongDisplay = calculateFinalExpectedDisplayValue({
+    expected: result.longExpected,
+    currentRank: currentPlay.longRank,
+    keyType,
+    noteType: 'long',
+    years: currentPlay.years,
+    noteTalent: result.constants.long,
+    finalRank: result.finalRank,
+  })
 
-    if (longDisplay - currentLong <= 1.25) {
-      longDisplay = currentLong + 1.75
-    }
-  }
+  const longDisplay = roundToTwo(
+    Math.min(rawLongDisplay, shortDisplay + 1.34),
+  )
+
   return `<article class="share-key-card"><h4>${label}</h4><div class="share-rank-pair"><span>단놋</span><strong>${getRankLabel(rankToNumber(currentPlay.shortRank), shortRanks)} › ${getUnitDisplayLabel(shortDisplay, shortRanks, shortRanks.length - 1)}</strong></div><div class="share-rank-pair"><span>롱놋</span><strong>${getRankLabel(rankToNumber(currentPlay.longRank), longRanks)} › ${getUnitDisplayLabel(longDisplay, longRanks, longRanks.length - 1)}</strong></div></article>`
 }
 
@@ -2390,6 +2445,41 @@ function createKeyResultCard(
   longRanks,
   currentPlay,
 ) {
+  const keyType = keyName === '4키' ? '4k' : '7k'
+
+  const shortDisplayValue =
+    result.shortExpected === null
+      ? null
+      : calculateFinalExpectedDisplayValue({
+          expected: result.shortExpected,
+          currentRank: currentPlay.shortRank,
+          keyType,
+          noteType: 'short',
+          years: currentPlay.years,
+          noteTalent: result.constants.short,
+          finalRank: result.finalRank,
+        })
+
+  const rawLongDisplayValue =
+    result.longExpected === null
+      ? null
+      : calculateFinalExpectedDisplayValue({
+          expected: result.longExpected,
+          currentRank: currentPlay.longRank,
+          keyType,
+          noteType: 'long',
+          years: currentPlay.years,
+          noteTalent: result.constants.long,
+          finalRank: result.finalRank,
+        })
+
+  const longDisplayValue =
+    rawLongDisplayValue === null || shortDisplayValue === null
+      ? rawLongDisplayValue
+      : roundToTwo(
+          Math.min(rawLongDisplayValue, shortDisplayValue + 1.34),
+        )
+
   return `
     <article class="key-result-card">
       <div class="key-result-heading">
@@ -2411,6 +2501,7 @@ function createKeyResultCard(
             noteTalent: result.constants.short,
             maxRank: shortRanks.length - 1,
             finalRank: result.finalRank,
+            displayValueOverride: shortDisplayValue,
           },
         )}
         ${createExpectedRankItem(
@@ -2424,6 +2515,7 @@ function createKeyResultCard(
             noteTalent: result.constants.long,
             maxRank: longRanks.length - 1,
             finalRank: result.finalRank,
+            displayValueOverride: longDisplayValue,
           },
         )}
       </div>
@@ -2464,22 +2556,19 @@ function createExpectedRankItem(
   const currentValue = rankToNumber(currentRank)
   const currentLabel = getRankLabel(currentValue, ranks)
   const keyType = ranks === sevenKeyRanks ? '7k' : '4k'
-  let displayValue = calculateUnitDisplayValue({
-    expected,
-    currentRank,
-    keyType,
-    noteType: options.noteType,
-    years: options.years,
-    noteTalent: options.noteTalent,
-  })
-
-  if (
-    !state.newbie &&
-    options.finalRank === 'SS+' &&
-    displayValue - currentValue <= 1.25
-  ) {
-    displayValue = currentValue + 1.75
-  }
+  let displayValue =
+    options.displayValueOverride !== undefined &&
+    options.displayValueOverride !== null
+      ? Number(options.displayValueOverride)
+      : calculateFinalExpectedDisplayValue({
+          expected,
+          currentRank,
+          keyType,
+          noteType: options.noteType,
+          years: options.years,
+          noteTalent: options.noteTalent,
+          finalRank: options.finalRank,
+        })
   const expectedLabel = getUnitDisplayLabel(displayValue, ranks, options.maxRank)
 
   return `
@@ -2634,6 +2723,151 @@ function getSelectedTraitNames(ids, source) {
 }
 
 
+function applyLongNoteAgePenaltyForExpectedRanks(keyResults) {
+  const longPenalty = Number(state.age) / 5
+
+  if (keyResults.key4) {
+    keyResults.key4.constants.long -= longPenalty
+  }
+
+  if (keyResults.key7) {
+    keyResults.key7.constants.long -= longPenalty
+  }
+}
+
+function isFinalRankAtLeastSS(rank) {
+  return rank === 'SS' || rank === 'SS+'
+}
+
+function applyLowEnteredRankHighTalentCorrection(
+  keyResults,
+  finalTalent,
+  finalRank,
+) {
+  if (!isFinalRankAtLeastSS(finalRank)) return
+
+  const correction = Number(finalTalent) / 30
+
+  const applyToKey = ({
+    result,
+    play,
+    shortThreshold,
+    longThreshold,
+    shortMaximum,
+    longMaximum,
+  }) => {
+    if (!result) return
+
+    const currentShort = rankToNumber(play.shortRank)
+    const currentLong = rankToNumber(play.longRank)
+
+    const hasNumericEnteredRanks =
+      currentShort > 0 &&
+      currentLong > 0
+
+    const enteredRanksAreLow =
+      currentShort < shortThreshold &&
+      currentLong < longThreshold
+
+    const expectedGapIsSmall =
+      Math.abs(result.shortExpected - currentShort) < 3 &&
+      Math.abs(result.longExpected - currentLong) < 3
+
+    if (
+      !hasNumericEnteredRanks ||
+      !enteredRanksAreLow ||
+      !expectedGapIsSmall
+    ) {
+      return
+    }
+
+    result.shortExpected = roundToTwo(
+      Math.min(shortMaximum, result.shortExpected + correction),
+    )
+
+    result.longExpected = roundToTwo(
+      Math.min(longMaximum, result.longExpected + correction),
+    )
+  }
+
+  applyToKey({
+    result: keyResults.key4,
+    play: state.play4k,
+    shortThreshold: 11,
+    longThreshold: 9,
+    shortMaximum: 22,
+    longMaximum: 19,
+  })
+
+  applyToKey({
+    result: keyResults.key7,
+    play: state.play7k,
+    shortThreshold: 8,
+    longThreshold: 9,
+    shortMaximum: 15,
+    longMaximum: 15,
+  })
+}
+
+function applyLongExpectedRankCap(keyResults) {
+  const maximumLongLead = 1.34
+
+  if (
+    keyResults.key4 &&
+    keyResults.key4.shortExpected !== null &&
+    keyResults.key4.longExpected !== null
+  ) {
+    keyResults.key4.longExpected = roundToTwo(
+      Math.min(
+        keyResults.key4.longExpected,
+        keyResults.key4.shortExpected + maximumLongLead,
+      ),
+    )
+  }
+
+  if (
+    keyResults.key7 &&
+    keyResults.key7.shortExpected !== null &&
+    keyResults.key7.longExpected !== null
+  ) {
+    keyResults.key7.longExpected = roundToTwo(
+      Math.min(
+        keyResults.key7.longExpected,
+        keyResults.key7.shortExpected + maximumLongLead,
+      ),
+    )
+  }
+}
+
+function calculateFinalExpectedDisplayValue({
+  expected,
+  currentRank,
+  keyType,
+  noteType,
+  years,
+  noteTalent,
+  finalRank,
+}) {
+  let displayValue = calculateUnitDisplayValue({
+    expected,
+    currentRank,
+    keyType,
+    noteType,
+    years,
+    noteTalent,
+  })
+
+  if (
+    !state.newbie &&
+    finalRank === 'SS+' &&
+    displayValue - rankToNumber(currentRank) <= 1.25
+  ) {
+    displayValue = rankToNumber(currentRank) + 1.75
+  }
+
+  return roundToTwo(displayValue)
+}
+
 function calculateFinalResult() {
   state.newbie = isNewbieState()
 
@@ -2664,7 +2898,10 @@ function calculateFinalResult() {
     applyFinalRankTalentAdjustment(keyResults, rank)
   }
 
+  applyLongNoteAgePenaltyForExpectedRanks(keyResults)
   calculateExpectedRanksForTalent(keyResults, pointResult.finalPoint)
+  applyLowEnteredRankHighTalentCorrection(keyResults, total, rank)
+  applyLongExpectedRankCap(keyResults)
 
   return {
     basicTalent: basicResult.basicTalent,
