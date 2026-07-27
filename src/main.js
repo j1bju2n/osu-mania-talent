@@ -2285,7 +2285,7 @@ function createShareKeyResult(label, result, currentPlay, shortRanks, longRanks)
 
   const keyType = label === '4키' ? '4k' : '7k'
 
-  const shortDisplay = calculateFinalExpectedDisplayValue({
+  const calculatedShortDisplay = calculateFinalExpectedDisplayValue({
     expected: result.shortExpected,
     currentRank: currentPlay.shortRank,
     keyType,
@@ -2294,6 +2294,12 @@ function createShareKeyResult(label, result, currentPlay, shortRanks, longRanks)
     noteTalent: result.constants.short,
     finalRank: result.finalRank,
   })
+
+  const shortDisplay =
+    result.shortDisplayOverride !== undefined &&
+    result.shortDisplayOverride !== null
+      ? Number(result.shortDisplayOverride)
+      : calculatedShortDisplay
 
   const rawLongDisplay = calculateFinalExpectedDisplayValue({
     expected: result.longExpected,
@@ -2453,7 +2459,7 @@ function createKeyResultCard(
 ) {
   const keyType = keyName === '4키' ? '4k' : '7k'
 
-  const shortDisplayValue =
+  const calculatedShortDisplayValue =
     result.shortExpected === null
       ? null
       : calculateFinalExpectedDisplayValue({
@@ -2465,6 +2471,12 @@ function createKeyResultCard(
           noteTalent: result.constants.short,
           finalRank: result.finalRank,
         })
+
+  const shortDisplayValue =
+    result.shortDisplayOverride !== undefined &&
+    result.shortDisplayOverride !== null
+      ? Number(result.shortDisplayOverride)
+      : calculatedShortDisplayValue
 
   const rawLongDisplayValue =
     result.longExpected === null
@@ -2886,7 +2898,186 @@ function calculateFinalExpectedDisplayValue({
   return roundToTwo(displayValue)
 }
 
-function applyCrossKeyLongNoteDisplayCorrection(keyResults) {
+function getBaseExpectedDisplayValue({
+  result,
+  currentPlay,
+  keyType,
+  noteType,
+  finalRank,
+}) {
+  const expected =
+    noteType === 'short'
+      ? result.shortExpected
+      : result.longExpected
+
+  const noteTalent =
+    noteType === 'short'
+      ? result.constants.short
+      : result.constants.long
+
+  return calculateFinalExpectedDisplayValue({
+    expected,
+    currentRank:
+      noteType === 'short'
+        ? currentPlay.shortRank
+        : currentPlay.longRank,
+    keyType,
+    noteType,
+    years: currentPlay.years,
+    noteTalent,
+    finalRank,
+  })
+}
+
+function applySsLowExpectedDisplayBoost(keyResults, finalRank) {
+  // 요청대로 최종 랭크가 정확히 SS일 때만 발동합니다.
+  if (finalRank !== 'SS') return
+
+  const selectedEntries = []
+
+  if (keyResults.key4) {
+    selectedEntries.push({
+      keyType: '4k',
+      result: keyResults.key4,
+      play: state.play4k,
+      shortLimit: 11,
+      longLimit: 11,
+    })
+  }
+
+  if (keyResults.key7) {
+    selectedEntries.push({
+      keyType: '7k',
+      result: keyResults.key7,
+      play: state.play7k,
+      shortLimit: 7,
+      longLimit: 7,
+    })
+  }
+
+  if (selectedEntries.length === 0) return
+
+  const displayValues = selectedEntries.map((entry) => ({
+    ...entry,
+    shortDisplay: getBaseExpectedDisplayValue({
+      result: entry.result,
+      currentPlay: entry.play,
+      keyType: entry.keyType,
+      noteType: 'short',
+      finalRank,
+    }),
+    longDisplay: getBaseExpectedDisplayValue({
+      result: entry.result,
+      currentPlay: entry.play,
+      keyType: entry.keyType,
+      noteType: 'long',
+      finalRank,
+    }),
+  }))
+
+  const allExpectedRanksAreLow = displayValues.every(
+    (entry) =>
+      entry.shortDisplay <= entry.shortLimit &&
+      entry.longDisplay <= entry.longLimit,
+  )
+
+  if (!allExpectedRanksAreLow) return
+
+  const hasSmallIncrease = displayValues.some((entry) => {
+    const currentShort = rankToNumber(entry.play.shortRank)
+    const currentLong = rankToNumber(entry.play.longRank)
+
+    const shortIsPlaying =
+      entry.play.shortRank !== 'not-playing' &&
+      currentShort >= 0
+
+    const longIsPlaying =
+      entry.play.longRank !== 'not-playing' &&
+      currentLong >= 0
+
+    const shortIncreaseIsSmall =
+      shortIsPlaying &&
+      entry.shortDisplay - currentShort < 3
+
+    const longIncreaseIsSmall =
+      longIsPlaying &&
+      entry.longDisplay - currentLong < 3
+
+    return shortIncreaseIsSmall || longIncreaseIsSmall
+  })
+
+  if (!hasSmallIncrease) return
+
+  const age = Math.max(1, Number(state.age))
+  const displayBoost = 50 / age
+
+  displayValues.forEach((entry) => {
+    entry.result.shortDisplayOverride = roundToTwo(
+      entry.shortDisplay + displayBoost,
+    )
+
+    entry.result.longDisplayOverride = roundToTwo(
+      entry.longDisplay + displayBoost,
+    )
+  })
+}
+
+function applyFourKeyLowShortLongDisplayCap(keyResults, finalRank) {
+  if (!keyResults.key4) return
+
+  const result = keyResults.key4
+
+  const shortDisplay =
+    result.shortDisplayOverride !== undefined &&
+    result.shortDisplayOverride !== null
+      ? Number(result.shortDisplayOverride)
+      : getBaseExpectedDisplayValue({
+          result,
+          currentPlay: state.play4k,
+          keyType: '4k',
+          noteType: 'short',
+          finalRank,
+        })
+
+  const longDisplay =
+    result.longDisplayOverride !== undefined &&
+    result.longDisplayOverride !== null
+      ? Number(result.longDisplayOverride)
+      : getBaseExpectedDisplayValue({
+          result,
+          currentPlay: state.play4k,
+          keyType: '4k',
+          noteType: 'long',
+          finalRank,
+        })
+
+  // Epsilon은 내부값 17입니다. Epsilon 이상에서는 이 제한을 해제합니다.
+  if (shortDisplay >= 17) return
+
+  // 롱놋이 단놋 표시보다 1 이상 높을 때만 발동합니다.
+  if (longDisplay - shortDisplay < 1) return
+
+  /*
+   * 4키 단놋 명칭을 롱놋 숫자 단위로 비교할 때:
+   * Tachyon(15) -> 13단, Delta(16) -> 14단으로 치환합니다.
+   * 따라서 최대 롱놋 표기는 치환된 단놋값 +1입니다.
+   *
+   * 예:
+   * 예상 단놋 Tachyon(15) -> 롱놋 최대 14+
+   * 예상 단놋 Delta(16)   -> 롱놋 최대 15+
+   */
+  const convertedShortValue = shortDisplay - 2
+  const maximumLongDisplay = convertedShortValue + 1
+
+  result.longDisplayOverride = roundToTwo(
+    Math.min(longDisplay, maximumLongDisplay),
+  )
+}
+
+function applyCrossKeyLongNoteDisplayCorrection(
+  keyResults,
+  finalRank,
+) {
   if (
     state.keys !== 'both' ||
     !keyResults.key4 ||
@@ -2895,24 +3086,45 @@ function applyCrossKeyLongNoteDisplayCorrection(keyResults) {
     return
   }
 
-  const fourKeyShortDisplay = calculateFinalExpectedDisplayValue({
-    expected: keyResults.key4.shortExpected,
-    currentRank: state.play4k.shortRank,
+  const getDisplay = ({
+    result,
+    play,
+    keyType,
+    noteType,
+  }) => {
+    const overrideKey =
+      noteType === 'short'
+        ? 'shortDisplayOverride'
+        : 'longDisplayOverride'
+
+    if (
+      result[overrideKey] !== undefined &&
+      result[overrideKey] !== null
+    ) {
+      return Number(result[overrideKey])
+    }
+
+    return getBaseExpectedDisplayValue({
+      result,
+      currentPlay: play,
+      keyType,
+      noteType,
+      finalRank,
+    })
+  }
+
+  const fourKeyShortDisplay = getDisplay({
+    result: keyResults.key4,
+    play: state.play4k,
     keyType: '4k',
     noteType: 'short',
-    years: state.play4k.years,
-    noteTalent: keyResults.key4.constants.short,
-    finalRank: keyResults.key4.finalRank,
   })
 
-  const fourKeyRawLongDisplay = calculateFinalExpectedDisplayValue({
-    expected: keyResults.key4.longExpected,
-    currentRank: state.play4k.longRank,
+  const fourKeyRawLongDisplay = getDisplay({
+    result: keyResults.key4,
+    play: state.play4k,
     keyType: '4k',
     noteType: 'long',
-    years: state.play4k.years,
-    noteTalent: keyResults.key4.constants.long,
-    finalRank: keyResults.key4.finalRank,
   })
 
   const fourKeyLongDisplay = roundToTwo(
@@ -2922,24 +3134,18 @@ function applyCrossKeyLongNoteDisplayCorrection(keyResults) {
     ),
   )
 
-  const sevenKeyShortDisplay = calculateFinalExpectedDisplayValue({
-    expected: keyResults.key7.shortExpected,
-    currentRank: state.play7k.shortRank,
+  const sevenKeyShortDisplay = getDisplay({
+    result: keyResults.key7,
+    play: state.play7k,
     keyType: '7k',
     noteType: 'short',
-    years: state.play7k.years,
-    noteTalent: keyResults.key7.constants.short,
-    finalRank: keyResults.key7.finalRank,
   })
 
-  const sevenKeyRawLongDisplay = calculateFinalExpectedDisplayValue({
-    expected: keyResults.key7.longExpected,
-    currentRank: state.play7k.longRank,
+  const sevenKeyRawLongDisplay = getDisplay({
+    result: keyResults.key7,
+    play: state.play7k,
     keyType: '7k',
     noteType: 'long',
-    years: state.play7k.years,
-    noteTalent: keyResults.key7.constants.long,
-    finalRank: keyResults.key7.finalRank,
   })
 
   const sevenKeyLongDisplay = roundToTwo(
@@ -2960,7 +3166,6 @@ function applyCrossKeyLongNoteDisplayCorrection(keyResults) {
     ),
   )
 
-  // 기존 절대조건인 '롱놋 <= 예상 단놋 + 1.34'도 유지합니다.
   keyResults.key4.longDisplayOverride = roundToTwo(
     Math.min(
       transferredLongDisplay,
@@ -3007,7 +3212,11 @@ function calculateFinalResult() {
   calculateExpectedRanksForTalent(keyResults, pointResult.finalPoint)
   applyLowEnteredRankHighTalentCorrection(keyResults, total, rank)
   applyLongExpectedRankCap(keyResults)
-  applyCrossKeyLongNoteDisplayCorrection(keyResults)
+
+  // 아래 세 함수는 예상 단위의 화면 표기값만 수정합니다.
+  applySsLowExpectedDisplayBoost(keyResults, rank)
+  applyCrossKeyLongNoteDisplayCorrection(keyResults, rank)
+  applyFourKeyLowShortLongDisplayCap(keyResults, rank)
 
   return {
     basicTalent: basicResult.basicTalent,
